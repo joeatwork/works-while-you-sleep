@@ -5,19 +5,27 @@
   <title>001 "Asgard" : Works While You Sleep!</title>
   <style>
 
-    /** Fontsquirrel generated. HOW COOL IS THIS TOOL? **/
-    @font-face {
-        font-family: 'ChicagoRegular';
-	src: url('fonts/neochicago-webfont.eot');
-	src: url('fonts/neochicago-webfont.eot?#iefix') format('embedded-opentype'),
-             url('fonts/neochicago-webfont.woff') format('woff'),
-             url('fonts/neochicago-webfont.ttf') format('truetype'),
-             url('fonts/neochicago-webfont.svg#ChicagoRegular') format('svg');
-	font-weight: normal;
-	font-style: normal;	
-    }
+  /** Fontsquirrel generated. HOW COOL IS THIS TOOL? **/
+  @font-face {
+      font-family: 'HeaderFont';
+      src: url('fonts/neochicago-webfont.eot');
+      src: url('fonts/neochicago-webfont.eot?#iefix') format('embedded-opentype'),
+           url('fonts/neochicago-webfont.woff') format('woff'),
+	   url('fonts/neochicago-webfont.ttf') format('truetype'),
+	   url('fonts/neochicago-webfont.svg#ChicagoRegular') format('svg');
+      font-weight: normal;
+      font-style: normal;	
+  }
+
+  /*********************************************************/
+
+  * {
+  }
 
   body {
+     font-family: Geneva, Arial, sans-serif;
+     font-size: 12px;
+
       margin: 0px;
       padding: 0px;
       background-image: url("images/halftone_gray.png");
@@ -40,13 +48,17 @@
   }
 
   section {
-      width: 576px;
+      width: 579px; /* 576px + 3px borders */
       margin: 12px auto;
       background-color: white;
   }
 
   .heading-area {
-      border: 1px solid black;
+      border-top: 1px solid black;
+      border-left: 1px solid black;
+      border-bottom: 1px solid black;
+
+      border-right: 2px solid black;
       margin: 0px;
       padding: 0px 1px;
       background-color: white;
@@ -59,24 +71,55 @@
   }
 
   h1, h2, h3, h4 {
-      font-family : 'ChicagoRegular', helvetica, san-serif;
+      font-family : 'HeaderFont', helvetica, san-serif;
       font-size: 12px;
   }
 
   .heading-bar h2 {
       margin: 0px auto;
       width: 100px;
-   
+      
       font-weight: normal;
       font-size: 12px;
       text-align: center;
       background-color: white;
   } 
 
-  .body-area {      
-      border-bottom: 1px solid black;
+  .body-area, .nav-area {
       border-left: 1px solid black;
-      border-right: 1px solid black;
+      border-right: 2px solid black;
+      border-bottom: 1px solid black;
+      padding: 12px 0px;
+  }
+
+  .nav-area ul {
+     margin: 0px;
+     padding: 0px;
+     list-style : none;
+  }
+
+  .nav-area ul li {
+     width: 100px;
+  }
+
+  .nav-area ul li.past {
+     float: left;
+     text-align: right;
+  }
+
+  .nav-area ul li.future {
+     float: right;
+  }
+
+  .about-area {
+     border-top: 1px solid black;
+     border-left: 1px solid black;
+     border-bottom: 2px solid black;
+     border-right: 2px solid black;
+  }
+
+  .about-box {
+      margin: 12px;
   }
   </style>
 </head>
@@ -93,6 +136,25 @@
   <div class="body-area">
     <img src="levels/001_asgard/room.png">
   </div><!-- .body-area -->
+  <div class="nav-area">
+    <ul>
+      <li class="past"><a href="javascript:void(0);">&lt; Previous</a></li>
+      <li class="past"><a href="javascript:void(0);">&lt;&lt; First</a></li>
+      <li class="future"><a href="javascript:void(0);">Next &gt;</a></li>
+      <li class="future"><a href="javascript:void(0);">Last &gt;&gt;</a></li>
+    </ul>
+    <div style="clear: both"></div>
+  </div><!-- .nav-area -->
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
 </section>
 
 </body>
