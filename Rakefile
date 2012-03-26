@@ -13,6 +13,9 @@ task :deploy do
     scp.upload!("site/fonts", CONFIG.remote_root, :recursive => true)
     scp.upload!("site/images", CONFIG.remote_root, :recursive => true)
     scp.upload!("site/levels", CONFIG.remote_root, :recursive => true)    
+    scp.upload!("site/lib", CONFIG.remote_root, :recursive => true)    
+    scp.upload!("site/js", CONFIG.remote_root, :recursive => true)    
+    scp.upload!("site/styles", CONFIG.remote_root, :recursive => true)    
     scp.upload!("site/index.html", CONFIG.remote_root)
 
   end # SCP.start

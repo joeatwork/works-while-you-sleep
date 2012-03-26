@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>002 "Astronaut" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/monochrome.css">
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+	 style="float: right; width: 200px;"
+	 ><time>2012-04-08</time:></div>
+    <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="heading-area">
+    <div class="heading-bar"><h2>#2 : Astronaut</h2></div>
+  </div><!-- .heading-area -->
+  <div class="body-area">
+    <canvas width="576" height="384" id="adventureScreen" >
+  </div><!-- .body-area -->
+  <div class="nav-area">
+    <ul>
+      <li class="past"><a href="../index.html">&lt; Previous</a></li>
+      <li class="past"><a href="../index.html">&lt;&lt; First</a></li>
+      <li class="future"><a href="javascript:void(0);">Next &gt;</a></li>
+      <li class="future"><a href="javascript:void(0);">Last &gt;&gt;</a></li>
+    </ul>
+    <div style="clear: both"></div>
+  </div><!-- .nav-area -->
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
+</section>
+<!--- NO MORE CONTENT --->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/character.js"></script>
+<script>
+(function(){
+
+    var roomImg = new Image();
+    roomImg.src = "001_asgard/room.png";
+
+    var dudeImage = new Image();
+    dudeImage.src = "sprites/spaceman_32x48.png";
+
+    var showRoom = function() {
+	var dude = new Character(dudeImage, 32, 48);
+
+	var canvas = $("#adventureScreen")[0];
+	var gfx = canvas.getContext("2d");
+	gfx.drawImage(roomImg, 0, 0);
+	dude.draw(gfx, 240, 96);	
+    };
+
+    var whenReady = function() {
+	if(roomImg.complete && dudeImage.complete) {
+	    showRoom();
+	    ret = true;
+	}
+	else {
+	    setTimeout(whenReady, 100); // WRONG (but not *so* wrong...)
+	}
+    };
+
+    $(whenReady);
+
+})();//ROOT SCOPE
+</script>
+</body>
+</html>
