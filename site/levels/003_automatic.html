@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>002 "Astronaut" : Works While You Sleep!</title>
+  <title>003 "Automatic" : Works While You Sleep!</title>
   <link rel="stylesheet" href="../styles/monochrome.css">
 </head>
 <body>
 <header>
   <hgroup>
     <div id="datebox"
-         style="float: right; width: 200px;"
-         ><time>2012-04-08</time:></div>
+	 style="float: right; width: 200px;"
+	 ><time>2012-04-08</time:></div>
     <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
   </hgroup>  
 </header>
 <section>
   <div class="heading-area">
-    <div class="heading-bar"><h2>#2 : Astronaut</h2></div>
+    <div class="heading-bar"><h2>#3 : Automatic</h2></div>
   </div><!-- .heading-area -->
   <div class="body-area">
     <canvas width="576" height="384" id="adventureScreen" >
   </div><!-- .body-area -->
   <div class="nav-area">
     <ul>
-      <li class="past"><a href="../index.html">&lt; Previous</a></li>
+      <li class="past"><a href="../002_astronaut.html">&lt; Previous</a></li>
       <li class="past"><a href="../index.html">&lt;&lt; First</a></li>
       <li class="future"><a href="javascript:void(0);">Next &gt;</a></li>
       <li class="future"><a href="javascript:void(0);">Last &gt;&gt;</a></li>
@@ -54,20 +54,21 @@
     dudeImage.src = "sprites/spaceman_32x48.png";
 
     var showRoom = function() {
-        var dude = Character.Costume.create(dudeImage, 32, 48);
+	var dude = Character.Costume.create(dudeImage, 32, 48);
 
-        var canvas = $("#adventureScreen")[0];
-        var gfx = canvas.getContext("2d");
-        gfx.drawImage(roomImg, 0, 0);
+	var canvas = $("#adventureScreen")[0];
+	var gfx = canvas.getContext("2d");
+
+        gfx.clearRect(0, 0, canvas.width, canvas.height);
+	gfx.drawImage(roomImg, 0, 0);
 
         var now = (new Date()).getTime();
-        dude.draw(gfx, 224, 96);
+	dude.draw(gfx, 224, 96, 0, 1, now);	
     };
 
     var whenReady = function() {
 	if(roomImg.complete && dudeImage.complete) {
-	    showRoom();
-	    ret = true;
+            setInterval(showRoom, 100);
 	}
 	else {
 	    setTimeout(whenReady, 100); // WRONG (but not *so* wrong...)
