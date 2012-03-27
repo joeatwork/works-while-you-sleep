@@ -44,17 +44,34 @@
 <!--- NO MORE CONTENT --->
 <script src="../lib/jquery-1.7.2.min.js"></script>
 <script src="../js/character.js"></script>
+<script src="../js/bounds.js"></script>
 <script>
 (function(){
 
     var roomImg = new Image();
     roomImg.src = "001_asgard/room.png";
 
+    var boundsImage = new Image();
+    boundsImage.src = "001_asgard/room_bounds.png";
+
     var dudeImage = new Image();
     dudeImage.src = "sprites/spaceman_32x48.png";
 
+    var bounds = null;
+
+    // Bounds of odin's hall
+    //        [160, 128 ], [416, 128]
+    // [32, 192]                  [ 544, 192 ]
+    // [32, 288]                  [ 544, 288 ]
+    //       [160, 352], [416, 352]
+    //
+
     var showRoom = function() {
-	var dude = Character.Costume.create(dudeImage, 32, 48);
+	var costume = Character.Costume.create(dudeImage, 32, 48);
+	var character = Character.create(costume);
+	character.move = function(time) {
+	    this.now = time;
+	};//move(time)
 
 	var canvas = $("#adventureScreen")[0];
 	var gfx = canvas.getContext("2d");
@@ -62,12 +79,21 @@
         gfx.clearRect(0, 0, canvas.width, canvas.height);
 	gfx.drawImage(roomImg, 0, 0);
 
+	if(bounds.ready()) {
+	    bounds.check(  0,   0);
+	    bounds.check(200, 245);
+	    bounds.check(499, 329);
+	};
+
         var now = (new Date()).getTime();
-	dude.draw(gfx, 224, 96, 0, 1, now);	
+	costume.draw(gfx, 224, 96, 0, 1, now);	
     };
 
     var whenReady = function() {
-	if(roomImg.complete && dudeImage.complete) {
+	if(roomImg.complete && 
+	   boundsImage.complete &&
+	   dudeImage.complete) {
+	    bounds = Bounds.create(boundsImage);	    
             setInterval(showRoom, 100);
 	}
 	else {
