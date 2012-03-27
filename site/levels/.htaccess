@@ -1,0 +1,4 @@
+# Shortcut so we can easily link to the latest level.
+RewriteEngine on
+RewriteBase /yousleep/levels/
+RewriteRule latest 003_automatic.html [R=301]
