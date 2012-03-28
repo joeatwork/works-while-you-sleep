@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Unit Tests for Part One</title>
+    <link rel="stylesheet" href="styles/qunit.css">
+    <script src="lib/qunit.js"></script>
+
+    <script src="../site/js/bounds.js"></script>
+    <script>
+      test("Bitmap", function() {
+          var bmp = Bounds.BitMap.create();
+
+	  for(var i = 0; i < 12347; i++) {
+	      ok(! bmp.getBit(i), "no bit before first set");
+	      bmp.setBit(i, true);
+	      ok( bmp.getBit(i), "bit present after set");
+	  }
+
+	  bmp.setBlock(100, 400, false);
+	  ok(bmp.getBit(99) && bmp.getBit(401), "Block bounds work");
+	  ok((!bmp.getBit(100)) && (!bmp.getBit(400)), "Block bounds work");
+	  ok(!bmp.getBit(123), "Interior block setting works");
+
+	  for(var i = 12346; i <= 0; i--) {
+	      bmp.setBit(i, false);
+	      ok(! bmp.getBit(i), "bit no longer present after clear");
+	  }
+
+	  ok(bmp.cost() <= Math.ceil(123467 / 32), "Cost is linear/32");
+      });
+    </script>
+  </head>
+<body>
+<body>  
+    <h1 id="qunit-header">QUnit Test Suite</h1>  
+    <h2 id="qunit-banner"></h2>  
+    <div id="qunit-testrunner-toolbar"></div>  
+    <h2 id="qunit-userAgent"></h2>  
+    <ol id="qunit-tests"></ol>  
+</body>  
+</html>
