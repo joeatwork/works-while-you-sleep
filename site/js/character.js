@@ -54,7 +54,7 @@ window.Character = (function() {
                 if(dx || dy) {
                     orientation = dirToOrientation(dx, dy);
                     var animTime = Math.floor(time/ANIMATION_SPEED_MS);
-                    cellOffset = 1 + (animTime % 2);
+                    cellOffset = animTime % 4;
                 }
 
                 var cellY = this.spriteHeight * orientation;
