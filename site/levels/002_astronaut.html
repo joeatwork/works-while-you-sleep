@@ -48,8 +48,10 @@
 (function(){
 
     $("#adventureScreen").click(function() {
-	window.location = $("#nextPage").attr("href");
+        window.location = $("#nextPage").attr("href");
     });
+
+    $("#adventureScreen").css("cursor", "pointer");
 
     var roomImg = new Image();
     roomImg.src = "001_asgard/room.png";
@@ -69,13 +71,13 @@
     };
 
     var whenReady = function() {
-	if(roomImg.complete && dudeImage.complete) {
-	    showRoom();
-	    ret = true;
-	}
-	else {
-	    setTimeout(whenReady, 100); // WRONG (but not *so* wrong...)
-	}
+        if(roomImg.complete && dudeImage.complete) {
+            showRoom();
+            ret = true;
+        }
+        else {
+            setTimeout(whenReady, 100); // WRONG (but not *so* wrong...)
+        }
     };
 
     $(whenReady);

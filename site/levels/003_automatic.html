@@ -64,9 +64,11 @@
     var showRoom = function() {
 
         if(bounds && bounds.ready()) {
-            character.setBounds(bounds, 0, 32, 32, 16);
-	    character.setPosition(224, 96)
-            character.setSpeed(0, 32); // One "Cell" is 16 x 32
+            character.setBounds(bounds, 0, 16, 32, 32);
+            character.setPosition(224, 100)
+
+            // This should be SPEED PER STEP, Not per Sec.
+            character.setSpeed(0, 32); // One "Cell" is 32 x 32
             bounds = null;
         };
 
@@ -75,17 +77,18 @@
 
         gfx.clearRect(0, 0, canvas.width, canvas.height);
         gfx.drawImage(roomImg, 0, 0);
+        // gfx.drawImage(boundsImage, 0, 0);
 
         var now = (new Date()).getTime();
         character.move(now);
         character.draw(gfx);
 
-	/********
-	gfx.fillRect(character.xPosition + character.footX,
-		     character.yPosition + character.footY,
-		     character.footWidth,
-		     character.footHeight);
-		     *******/
+        /*****
+        gfx.fillRect(character.xPosition + character.footX,
+                     character.yPosition + character.footY,
+                     character.footWidth,
+                     character.footHeight);
+        *****/
 
     };
 

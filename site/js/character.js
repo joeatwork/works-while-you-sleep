@@ -4,10 +4,20 @@
 window.Character = (function() {
     "use strict";
 
-
     /**************************************************/
     // a Costume manages drawing and animating a character
     // to a graphics context.
+    //
+    // Costume images should have the following layout
+    //
+    // REST North, North frame 2, North frame 3, North frame 4
+    // REST East, East frame 2, East frame 3, East frame 4
+    // REST South, South frame 2, South frame 3, South frame 4
+    // REST West, West frame 2, West frame 3, West frame 4
+    //
+    // Where Rest == the first frame of a walk cycle,
+    // and distance traveled in 1 cycle == width of costume
+    //
     var Costume = (function() {
 
         var NORTH = 0;
@@ -32,7 +42,6 @@ window.Character = (function() {
             this.spriteHeight = spriteHeight;
         };
 
-
         Costume.create = function(image, spriteWidth, spriteHeight) {
             return new Costume(image, spriteWidth, spriteHeight);
         };
@@ -42,8 +51,8 @@ window.Character = (function() {
             // gfx - a graphics context
             // posX, posY - point in gfx coordinates to draw the upper left corner
             //    of the character
-            // dx, dy - direction of motion of character in the X and Y directions,
-            //    as -1, 0, or 1
+            // dx, dy - speed of motion of character in the X and Y directions,
+            //    in pixels.
             // time - in millisecond ticks, from some zero.
             draw : function(gfx, posX, posY, dx, dy, time) {
                 if(!time) time = 0;
@@ -51,6 +60,7 @@ window.Character = (function() {
                 var orientation = SOUTH;
                 var cellOffset = 0;
 
+                // Broken? Animation should correspond to MOTION, not TIME
                 if(dx || dy) {
                     orientation = dirToOrientation(dx, dy);
                     var animTime = Math.floor(time/ANIMATION_SPEED_MS);
@@ -140,8 +150,8 @@ window.Character = (function() {
             if(this.bounds) {
                 var targetFootX = Math.floor(this.footX + targetX);
                 var targetFootY = Math.floor(this.footY + targetY);
-		var targetWidth = this.footWidth;
-		var targetHeight = this.footHeight;
+                var targetWidth = this.footWidth;
+                var targetHeight = this.footHeight;
 
                 var isClear =
                     this.bounds.checkClear(targetFootX,
@@ -153,11 +163,11 @@ window.Character = (function() {
                     this.xPosition = targetX;
                     this.yPosition = targetY;
                 }
-		else {
-		    var oldXSpeed = this.xSpeed;
-		    this.xSpeed = -this.ySpeed;
-		    this.ySpeed = oldXSpeed;
-		}
+                else {
+                    var oldXSpeed = this.xSpeed;
+                    this.xSpeed = -this.ySpeed;
+                    this.ySpeed = oldXSpeed;
+                }
             }
 
             this.now = time;
