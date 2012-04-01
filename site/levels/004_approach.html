@@ -16,7 +16,7 @@
 </header>
 <section>
   <div class="heading-area">
-    <div class="heading-bar"><h2>#4 : Automatic</h2></div>
+    <div class="heading-bar"><h2>#4 : Approach</h2></div>
   </div><!-- .heading-area -->
   <div class="body-area">
     <canvas width="576" height="384" id="adventureScreen" >
@@ -53,6 +53,18 @@
 (function(){
     "use strict";
 
+    // Quick polyfill for animation.
+    window.requestAnimFrame = (function(callback){
+	return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    window.oRequestAnimationFrame ||
+	    window.msRequestAnimationFrame ||
+	    function(callback){
+		window.setTimeout(callback, 1000 / 60);
+	    };
+    })();//polyfill
+
     var character = false;
     var canvas = false;
     var tableau = Tableau.create();
@@ -75,6 +87,7 @@
             character.move(now);
             tableau.draw(canvas);
         }
+	requestAnimFrame(showRoom);
 
         /******
         var gfx = canvas.getContext("2d");
@@ -87,7 +100,7 @@
 
     $(function() {
         canvas = $("#adventureScreen")[0];
-        setInterval(showRoom, 100);
+        requestAnimFrame(showRoom);
     });
 
 })();//ROOT SCOPE

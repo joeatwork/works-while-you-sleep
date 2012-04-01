@@ -129,6 +129,12 @@ window.Character = (function() {
             this.yPosition = yPosition;
         },
 
+	// LOGICAL center of the character
+	getCenter : function() {
+	    return { x : this.xPosition + this.footX + (this.footWidth/2),
+		     y : this.yPosition + this.footY + (this.footHeight/2) };
+	},
+
         // Speed should be expressed in pixels-per second
         setSpeed : function(xSpeed, ySpeed) {
             this.xSpeed = xSpeed;

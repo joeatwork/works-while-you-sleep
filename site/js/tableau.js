@@ -57,10 +57,20 @@ window.Tableau = (function() {
     Tableau.prototype.draw = function(canvas) {
         if(this.isLoaded()) {
             var gfx = canvas.getContext("2d");
+	    gfx.save();
             gfx.clearRect(0, 0, canvas.width, canvas.height);
+
+	    // Check scrolling
+	    var characterOffset = this.character.getCenter();
+	    var viewOffsetX = canvas.width/2;
+
+	    var scrollDistance = characterOffset.x - viewOffsetX;
+
+	    gfx.translate(-scrollDistance, 0);
             gfx.drawImage(this.roomImage, 0, 0);
             // gfx.drawImage(this.boundsImage, 0, 0);
             this.character.draw(gfx);
+	    gfx.restore();
         }
     };
 
