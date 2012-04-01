@@ -94,9 +94,10 @@ window.Character = (function() {
     // Characters are constructed with
     //  - a Costume, to represent themselves on gfx contexts
     var Character = function(costume) {
-        this.costume = costume;
         this.xSpeed = 0;
         this.ySpeed = 0;
+
+        if(costume) this.setCostume(costume);
     }
 
     Character.Costume = Costume;
@@ -106,6 +107,11 @@ window.Character = (function() {
     };
 
     Character.prototype = {
+
+        // - costume, a Character.Costume
+        setCostume : function(costume) {
+            this.costume = costume;
+        },
 
         //  - bounds - has a check(x,y) method
         //  - a Footprint rectangle {x, y, width, height } for collision detection
