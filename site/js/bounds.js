@@ -93,12 +93,17 @@ window.Bounds = (function() {
         // not actually RUN.
         setTimeout(function() {
             bounds.bitMap = canvasToBitMap(boundsCanvas);
+            bounds.onReady();
         }, 0);
     };
     
     Bounds.BitMap = BitMap;
 
     Bounds.prototype = {
+
+        onReady : function() {
+            ; // To be overridden if needed.
+        },
 
         ready : function() {
             return this.bitMap;

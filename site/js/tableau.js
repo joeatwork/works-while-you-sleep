@@ -59,26 +59,27 @@ window.Tableau = (function() {
             var gfx = canvas.getContext("2d");
             gfx.clearRect(0, 0, canvas.width, canvas.height);
 
-	    gfx.save();
-	    // Check scrolling
-	    var characterOffset = this.character.getCenter();
-	    var viewOffsetX = canvas.width/2;
+            gfx.save();
+            // Check scrolling
+            var characterOffset = this.character.getCenter();
+            var viewOffsetX = canvas.width/2;
 
-	    var scrollDistance = Math.floor(characterOffset.x - viewOffsetX);
+            var scrollDistance = Math.floor(characterOffset.x - viewOffsetX);
 
-	    gfx.translate(-scrollDistance, 0);
+            gfx.translate(-scrollDistance, 0);
             gfx.drawImage(this.roomImage, 0, 0);
             // gfx.drawImage(this.boundsImage, 0, 0);
             this.character.draw(gfx);
-	    gfx.restore();
+            gfx.restore();
         }
     };
 
     Tableau.prototype._whenLoaded = function(costumeImage,
                                              roomImage,
                                              boundsImage) {
-        this.roomImage = roomImage;
-        this.boundsImage = boundsImage; // TODO REMOVE
+        var tableau = this;
+        tableau.roomImage = roomImage;
+        tableau.boundsImage = boundsImage; // TODO REMOVE
 
         var bounds = Bounds.create(boundsImage);
 
@@ -87,10 +88,14 @@ window.Tableau = (function() {
                                      Tableau.COSTUME_SPRITE_WIDTH,
                                      Tableau.COSTUME_SPRITE_HEIGHT);
 
-        this.character = Character.create();
-        this.character.setCostume(costume);
-        this.character.setBounds(bounds)
-        this.onCharacterAssetsLoaded(this.character, costume, bounds);
+        tableau.character = Character.create();
+        tableau.character.setCostume(costume);
+        tableau.character.setBounds(bounds)
+
+        bounds.onReady = function() {
+            tableau.onCharacterAssetsLoaded(tableau.character, 
+                                            costume, bounds);
+        };
     };
 
     return Tableau;
