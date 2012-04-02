@@ -1,0 +1,6 @@
+# Shortcut so we can easily link to the latest level.
+RewriteEngine on
+RewriteBase /yousleep/
+RewriteRule ^/$ /levels/001_activation.html [R=301]
+RewriteRule ^/index.html?$ /levels/001_activation.html [R=301]
+RewriteRule /levels/latest /levels/003_automatic.html [R=301]
