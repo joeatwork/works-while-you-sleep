@@ -68,7 +68,10 @@ window.Tableau = (function() {
 
             gfx.translate(-scrollDistance, 0);
             gfx.drawImage(this.roomImage, 0, 0);
-            // gfx.drawImage(this.boundsImage, 0, 0);
+            
+
+	    // gfx.drawImage(this.boundsImage, 0, 0); // DEBUG ONLY
+
             this.character.draw(gfx);
             gfx.restore();
         }

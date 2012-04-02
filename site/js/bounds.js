@@ -29,7 +29,7 @@ window.Bounds = (function() {
             this.int32s[intIndex] = newMask;
         },
 
-        getBit : function(index, val) {
+        getBit : function(index) {
             var intIndex = Math.floor(index / 32);
             var bitIndex = index % 32;
 
@@ -99,6 +99,8 @@ window.Bounds = (function() {
     
     Bounds.BitMap = BitMap;
 
+    // TODO: Make bitmap OPTIONAL, or use bounding rect.
+    // TODO: Take a bitmap FUTURE, and load yourself.
     Bounds.prototype = {
 
         onReady : function() {
@@ -110,8 +112,14 @@ window.Bounds = (function() {
         },
 
         check : function(x,y) {
-            var checkBit = x + (y * this.width);
-            return this.bitMap.getBit(checkBit);
+	    if((x >= this.width) || (y >= this.height) ||
+	       (x < 0) || (y < 0)) {
+		return false;
+	    }
+	    else {
+		var checkBit = x + (y * this.width);
+		return this.bitMap.getBit(checkBit);
+	    }
         },
 
         checkClear : function(x, y, width, height) {
@@ -134,9 +142,15 @@ window.Bounds = (function() {
         // TODO DELETE OR JUSTIFY
         _markRect : function(x, y, width, height, mark) {
             for(var iY = y; iY <= y + height; iY++) {
-                var lowCol = x + (iY * this.width);
-                var highCol = lowCol + width;
-                this.bitMap.setBlock(lowCol, highCol, mark);
+		if((iY >= 0) && (iY < this.height))  {
+                    var lowCol = x + (iY * this.width);
+		    lowCol = Math.max(lowCol, 0);
+
+                    var highCol = lowCol + width;
+		    highCol = Math.min(highCol, this.width);
+
+                    this.bitMap.setBlock(lowCol, highCol, mark);
+		}// iY in bounding rect
             }
         }
     };// Bounds.prototype

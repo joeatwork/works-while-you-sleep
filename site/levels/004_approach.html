@@ -19,7 +19,8 @@
     <div class="heading-bar"><h2>#4 : Approach</h2></div>
   </div><!-- .heading-area -->
   <div class="body-area">
-    <canvas width="576" height="384" id="adventureScreen" >
+    <canvas width="576" height="384" id="adventureScreen" 
+	    style="background-color: black;">
   </div><!-- .body-area -->
   <div class="nav-area">
     <ul>
@@ -74,7 +75,7 @@
         character = newCharacter;
         character.setCostume(costume);
         character.setBounds(bounds, 0, 16, 32, 32);
-        character.setPosition(224, 224);
+        character.setPosition(0, 224);
         character.setSpeed(32, 0); // One "Cell" is 32 x 32     
 	// character.setSpeed(1, 0); // One "Cell" is 32 x 32     
     };
