@@ -10,7 +10,7 @@
   <hgroup>
     <div id="datebox"
          style="float: right; width: 200px;"
-         ><time>2012-04-15</time:></div>
+         ><time>2012-04-22</time:></div>
     <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
   </hgroup>  
 </header>
@@ -61,12 +61,13 @@
 	    window.oRequestAnimationFrame ||
 	    window.msRequestAnimationFrame ||
 	    function(callback){
-		window.setTimeout(callback, 1000 / 60);
+		window.setTimeout(callback, 10);
 	    };
     })();//polyfill
 
     var character = false;
-    var canvas = false;
+    var frontCanvas = false;
+    var backCanvas = false;
     var tableau = Tableau.create();
 
     tableau.onCharacterAssetsLoaded = function(newCharacter, costume, bounds) {
@@ -75,33 +76,37 @@
         character.setBounds(bounds, 0, 16, 32, 32);
         character.setPosition(224, 224);
         character.setSpeed(32, 0); // One "Cell" is 32 x 32     
+	// character.setSpeed(1, 0); // One "Cell" is 32 x 32     
     };
 
     tableau.load("sprites/spaceman_32x48.png",
                  "001_asgard/corridor.png",
                  "001_asgard/corridor_bounds.png");
 
-    var showRoom = function() {
-        if(character && canvas && tableau.isLoaded()) {
+    $(function() {
+        frontCanvas = $("#adventureScreen")[0];
+	backCanvas = document.createElement("canvas");
+	backCanvas.width = frontCanvas.width;
+	backCanvas.height = frontCanvas.height;
+    });
+
+    var animation = function() {
+        if(character && backCanvas && tableau.isLoaded()) {
             var now = (new Date()).getTime();
             character.move(now);
-            tableau.draw(canvas);
+            tableau.draw(backCanvas);
         }
-	requestAnimFrame(showRoom);
 
-        /******
-        var gfx = canvas.getContext("2d");
-        gfx.fillRect(character.xPosition + character.footX,
-                     character.yPosition + character.footY,
-                     character.footWidth,
-                     character.footHeight);
-                     ******/
+	if(backCanvas && frontCanvas) {
+	    var frontGfx = frontCanvas.getContext("2d");
+	    frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+	    frontGfx.drawImage(backCanvas, 0, 0);
+	}
+
+	requestAnimFrame(animation);
     };
-
-    $(function() {
-        canvas = $("#adventureScreen")[0];
-        requestAnimFrame(showRoom);
-    });
+    // setInterval(animation, 100);
+    requestAnimFrame(animation);
 
 })();//ROOT SCOPE
 </script>
