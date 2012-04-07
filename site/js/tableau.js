@@ -54,10 +54,19 @@ window.Tableau = (function() {
         return this.loaded;
     };
 
+    Tableau.prototype.setFixedBackground = function(backgroundUrl) {
+	this.background = new Image();
+	this.background.src = backgroundUrl;
+    };
+
     Tableau.prototype.draw = function(canvas) {
         if(this.isLoaded()) {
             var gfx = canvas.getContext("2d");
             gfx.clearRect(0, 0, canvas.width, canvas.height);
+
+	    if(this.background && this.background.complete) {
+		gfx.drawImage(this.background, 0, 0);
+	    }
 
             gfx.save();
             // Check scrolling

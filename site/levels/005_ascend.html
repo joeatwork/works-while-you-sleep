@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>005 "Ascend" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/monochrome.css">
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 200px;"
+         ><time>2012-05-20</time:></div>
+    <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="heading-area">
+    <div class="heading-bar"><h2>#5 : Ascend</h2></div>
+  </div><!-- .heading-area -->
+  <div class="body-area"
+       style="background-color: black;">
+    <canvas width="576" height="384" id="adventureScreen">
+  </div><!-- .body-area -->
+  <div class="nav-area">
+    <ul>
+      <li class="past"><a href="004_approach.html">&lt; Previous</a></li>
+      <li class="past"><a href="001_asgard.html">&lt;&lt; First</a></li>
+      <li class="future"><a href="javascript:void(0);">Next &gt;</a></li>
+      <li class="future"><a href="latest">Last &gt;&gt;</a></li>
+    </ul>
+    <div style="clear: both"></div>
+  </div><!-- .nav-area -->
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
+</section>
+<!--- NO MORE CONTENT --->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/chorus.js"></script>
+
+<!-- TODO MOVE bounds.js INTO character.js -->
+<script src="../js/character.js"></script>
+<script src="../js/bounds.js"></script>
+<script src="../js/tableau.js"></script>
+<script>
+(function(){
+    "use strict";
+
+    // Quick polyfill for animation.
+    window.requestAnimFrame = (function(callback){
+	return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    window.oRequestAnimationFrame ||
+	    window.msRequestAnimationFrame ||
+	    function(callback){
+		window.setTimeout(callback, 10);
+	    };
+    })();//polyfill
+
+    var character = false;
+    var frontCanvas = false;
+    var backCanvas = false;
+    var tableau = Tableau.create();
+
+    tableau.onCharacterAssetsLoaded = function(newCharacter, costume, bounds) {
+        character = newCharacter;
+        character.setCostume(costume);
+        character.setBounds(bounds, 0, 16, 32, 32);
+        character.setPosition(272, 224);
+        character.setSpeed(32, 0); // One "Cell" is 32 x 32     
+    };
+
+    tableau.load("sprites/spaceman_32x48.png",
+                 "001_asgard/launchpad.png",
+                 "001_asgard/corridor_bounds.png");    
+
+    tableau.setFixedBackground("001_asgard/space_1164x394.png");
+
+    $(function() {
+        frontCanvas = $("#adventureScreen")[0];
+	backCanvas = document.createElement("canvas");
+	backCanvas.width = frontCanvas.width;
+	backCanvas.height = frontCanvas.height;
+    });
+
+    var animation = function() {
+        if(character && backCanvas && tableau.isLoaded()) {	   
+            var now = (new Date()).getTime();
+            character.move(now);
+            tableau.draw(backCanvas);
+
+        }
+
+	if(backCanvas && frontCanvas) {
+	    var frontGfx = frontCanvas.getContext("2d");
+	    frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+	    frontGfx.drawImage(backCanvas, 0, 0);
+	}
+
+	requestAnimFrame(animation);
+    };
+    // setInterval(animation, 100);
+    requestAnimFrame(animation);
+
+})();//ROOT SCOPE
+</script>
+</body>
+</html>
