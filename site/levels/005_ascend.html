@@ -56,14 +56,14 @@
 
     // Quick polyfill for animation.
     window.requestAnimFrame = (function(callback){
-	return window.requestAnimationFrame ||
-	    window.webkitRequestAnimationFrame ||
-	    window.mozRequestAnimationFrame ||
-	    window.oRequestAnimationFrame ||
-	    window.msRequestAnimationFrame ||
-	    function(callback){
-		window.setTimeout(callback, 10);
-	    };
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 10);
+            };
     })();//polyfill
 
     var character = false;
@@ -80,63 +80,63 @@
         // character.setSpeed(0, 0); // One "Cell" is 32 x 32     
         character.setSpeed(32, 0); // One "Cell" is 32 x 32     
 
-	var tumble = 0;
-	var spiral = -1;
-	var spinT0 = -1;
-	var spiralT0 = -1;
-	var oldDraw = character.draw;
-	var oldMove = character.move;
-	character.move = function(time) {
-	    if(1774 < character.xPosition) {
-		character.xSpeed = 0;
-		character.ySpeed = 0;
-	    }
+        var tumble = 0;
+        var spiral = -1;
+        var spinT0 = -1;
+        var spiralT0 = -1;
+        var oldDraw = character.draw;
+        var oldMove = character.move;
+        character.move = function(time) {
+            if(1774 < character.xPosition) {
+                character.xSpeed = 0;
+                character.ySpeed = 0;
+            }
 
-	    if (character.xPosition > 900) {
-		if(spinT0 < 0) spinT0 = time;
-		var deltaT = time - spinT0;
-		tumble = (deltaT % 10000) * Math.PI/5000;
-	    }
-	    else {
-		spinT0 = -1;
-	    }
+            if (character.xPosition > 900) {
+                if(spinT0 < 0) spinT0 = time;
+                var deltaT = time - spinT0;
+                tumble = (deltaT % 5000) * Math.PI/2500;
+            }
+            else {
+                spinT0 = -1;
+            }
 
-	    if ((0 == character.xSpeed) && (0 == character.ySpeed)) {
-		if(spiralT0 < 0) spiralT0 = time;
-		var spiralT = time - spiralT0;
-		spiral = spiralT / 100;
-	    }
-	    else {
-		spiralT0 = -1;
-	    }
+            if ((0 == character.xSpeed) && (0 == character.ySpeed)) {
+                if(spiralT0 < 0) spiralT0 = time;
+                var spiralT = time - spiralT0;
+                spiral = spiralT / 100;
+            }
+            else {
+                spiralT0 = -1;
+            }
 
-	    return oldMove.call(character, time);
-	};
+            return oldMove.call(character, time);
+        };
 
-	character.whenBlocked = function() {
-	    character.xSpeed = 0;
-	    character.ySpeed = 0;
-	};
+        character.whenBlocked = function() {
+            character.xSpeed = 0;
+            character.ySpeed = 0;
+        };
 
-	character.draw = function(gfx) {
-	    var atX = character.xPosition;
-	    var atY = character.yPosition;
-	    var ret;
-	    if (atX > 900) {
-		gfx.save();
-		gfx.translate(atX, atY);
-		gfx.rotate(-tumble);
-		if (spiral > 0) gfx.translate(spiral, 0);
-		gfx.translate(-atX, -atY);
-		ret = oldDraw.call(character, gfx);
-		gfx.restore();
-	    }
-	    else {
-		ret = oldDraw.call(character, gfx);
-	    }
+        character.draw = function(gfx) {
+            var atX = character.xPosition;
+            var atY = character.yPosition;
+            var ret;
+            if (atX > 900) {
+                gfx.save();
+                gfx.translate(atX, atY);
+                gfx.rotate(-tumble);
+                if (spiral > 0) gfx.translate(spiral, 0);
+                gfx.translate(-atX, -atY);
+                ret = oldDraw.call(character, gfx);
+                gfx.restore();
+            }
+            else {
+                ret = oldDraw.call(character, gfx);
+            }
 
-	    return ret;
-	};
+            return ret;
+        };
     };
 
     tableau.load("sprites/spaceman_32x48.png",
@@ -147,26 +147,26 @@
 
     $(function() {
         frontCanvas = $("#adventureScreen")[0];
-	backCanvas = document.createElement("canvas");
-	backCanvas.width = frontCanvas.width;
-	backCanvas.height = frontCanvas.height;
+        backCanvas = document.createElement("canvas");
+        backCanvas.width = frontCanvas.width;
+        backCanvas.height = frontCanvas.height;
     });
 
     var animation = function() {
-        if(character && backCanvas && tableau.isLoaded()) {	   
+        if(character && backCanvas && tableau.isLoaded()) {        
             var now = (new Date()).getTime();
             character.move(now);
             tableau.draw(backCanvas);
 
         }
 
-	if(backCanvas && frontCanvas) {
-	    var frontGfx = frontCanvas.getContext("2d");
-	    frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
-	    frontGfx.drawImage(backCanvas, 0, 0);
-	}
+        if(backCanvas && frontCanvas) {
+            var frontGfx = frontCanvas.getContext("2d");
+            frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+            frontGfx.drawImage(backCanvas, 0, 0);
+        }
 
-	requestAnimFrame(animation);
+        requestAnimFrame(animation);
     };
     // setInterval(animation, 100);
     requestAnimFrame(animation);

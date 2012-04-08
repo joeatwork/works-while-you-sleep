@@ -129,11 +129,11 @@ window.Character = (function() {
             this.yPosition = yPosition;
         },
 
-	// LOGICAL center of the character
-	getCenter : function() {
-	    return { x : this.xPosition + this.footX + (this.footWidth/2),
-		     y : this.yPosition + this.footY + (this.footHeight/2) };
-	},
+        // LOGICAL center of the character
+        getCenter : function() {
+            return { x : this.xPosition + this.footX + (this.footWidth/2),
+                     y : this.yPosition + this.footY + (this.footHeight/2) };
+        },
 
         // Speed should be expressed in pixels-per second
         setSpeed : function(xSpeed, ySpeed) {
@@ -141,12 +141,12 @@ window.Character = (function() {
             this.ySpeed = ySpeed;
         },
 
-	// Called when we would otherwise bump into a wall
-	whenBlocked : function() {
+        // Called when we would otherwise bump into a wall
+        whenBlocked : function() {
             var oldXSpeed = this.xSpeed;
             this.xSpeed = -this.ySpeed;
             this.ySpeed = oldXSpeed;
-	},
+        },
 
         // Advance this character's state through time. Likely VERY SPECIAL.
         // Callers should promise that if called with time === x, ALL future
@@ -183,7 +183,7 @@ window.Character = (function() {
                     this.yPosition = targetY;
                 }
                 else {
-		    this.whenBlocked();
+                    this.whenBlocked();
                 }
             }
 
@@ -196,10 +196,10 @@ window.Character = (function() {
         // and state last seen (and calculated) with move().
         // Does not handle Z-ordering.
         draw : function(gfx) {
-	    gfx.save();
-	    gfx.translate(this.xPosition, this.yPosition);
-	    this.costume.draw(gfx, 0, 0, this.xSpeed, this.ySpeed, this.now);
-	    gfx.restore();
+            gfx.save();
+            gfx.translate(this.xPosition, this.yPosition);
+            this.costume.draw(gfx, 0, 0, this.xSpeed, this.ySpeed, this.now);
+            gfx.restore();
         },
     };
 
