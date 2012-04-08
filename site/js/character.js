@@ -141,6 +141,13 @@ window.Character = (function() {
             this.ySpeed = ySpeed;
         },
 
+	// Called when we would otherwise bump into a wall
+	whenBlocked : function() {
+            var oldXSpeed = this.xSpeed;
+            this.xSpeed = -this.ySpeed;
+            this.ySpeed = oldXSpeed;
+	},
+
         // Advance this character's state through time. Likely VERY SPECIAL.
         // Callers should promise that if called with time === x, ALL future
         // calls will have time > x
@@ -176,9 +183,7 @@ window.Character = (function() {
                     this.yPosition = targetY;
                 }
                 else {
-                    var oldXSpeed = this.xSpeed;
-                    this.xSpeed = -this.ySpeed;
-                    this.ySpeed = oldXSpeed;
+		    this.whenBlocked();
                 }
             }
 
@@ -191,11 +196,10 @@ window.Character = (function() {
         // and state last seen (and calculated) with move().
         // Does not handle Z-ordering.
         draw : function(gfx) {
-            this.costume.draw(gfx,
-                              Math.floor(this.xPosition),
-                              Math.floor(this.yPosition),
-                              this.xSpeed, this.ySpeed,
-                              this.now);
+	    gfx.save();
+	    gfx.translate(this.xPosition, this.yPosition);
+	    this.costume.draw(gfx, 0, 0, this.xSpeed, this.ySpeed, this.now);
+	    gfx.restore();
         },
     };
 

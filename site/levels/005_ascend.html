@@ -19,9 +19,9 @@
     <div class="heading-bar"><h2>#5 : Ascend</h2></div>
   </div><!-- .heading-area -->
   <div class="body-area"
-       style="background-color: black;">
-    <canvas width="576" height="384" id="adventureScreen">
-  </div><!-- .body-area -->
+       style="background-color: black;"
+       ><canvas width="576" height="384" id="adventureScreen"
+                ></div><!-- .body-area -->
   <div class="nav-area">
     <ul>
       <li class="past"><a href="004_approach.html">&lt; Previous</a></li>
@@ -76,7 +76,67 @@
         character.setCostume(costume);
         character.setBounds(bounds, 0, 16, 32, 32);
         character.setPosition(272, 224);
+
+        // character.setSpeed(0, 0); // One "Cell" is 32 x 32     
         character.setSpeed(32, 0); // One "Cell" is 32 x 32     
+
+	var tumble = 0;
+	var spiral = -1;
+	var spinT0 = -1;
+	var spiralT0 = -1;
+	var oldDraw = character.draw;
+	var oldMove = character.move;
+	character.move = function(time) {
+	    if(1774 < character.xPosition) {
+		character.xSpeed = 0;
+		character.ySpeed = 0;
+	    }
+
+	    if (character.xPosition > 900) {
+		if(spinT0 < 0) spinT0 = time;
+		var deltaT = time - spinT0;
+		tumble = (deltaT % 10000) * Math.PI/5000;
+	    }
+	    else {
+		spinT0 = -1;
+	    }
+
+	    if ((0 == character.xSpeed) && (0 == character.ySpeed)) {
+		if(spiralT0 < 0) spiralT0 = time;
+		var spiralT = time - spiralT0;
+		spiral = spiralT / 100;
+	    }
+	    else {
+		spiralT0 = -1;
+	    }
+
+	    return oldMove.call(character, time);
+	};
+
+	character.whenBlocked = function() {
+	    character.xSpeed = 0;
+	    character.ySpeed = 0;
+	};
+
+	character.draw = function(gfx) {
+	    var atX = character.xPosition;
+	    var atY = character.yPosition;
+	    var ret;
+	    if (atX > 900) {
+		gfx.save();
+		gfx.translate(atX, atY);
+		gfx.rotate(-tumble);
+		if (spiral > 0) gfx.translate(spiral, 0);
+		gfx.translate(-atX, -atY);
+		ret = oldDraw.call(character, gfx);
+		gfx.restore();
+	    }
+	    else {
+		ret = oldDraw.call(character, gfx);
+	    }
+
+	    return ret;
+	};
     };
 
     tableau.load("sprites/spaceman_32x48.png",
