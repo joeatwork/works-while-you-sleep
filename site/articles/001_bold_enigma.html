@@ -1,25 +1,166 @@
-mystic astronaut #1
-<h1>BOLD ENIGMA</h2>
-<p>Bravely ascending from the heavens below! Captain of the SHINING
-VIMANA, that ever-burning sky-chariot! Silent bearer of promethian
-wisdom to this darkened sphere! Mysterious, Courageous herald of
-tomorrow!</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mystic Astronaut #1 : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/monochrome.css">
+  <style>
+      .body-area.solo {
+      border-top: 1px solid black;
+      }
 
-<p>The BOLD ENIGMA never speaks (his inner world is MYSTERY!) but he
-understands these words!</p>
+      .newsletter {
+      padding: 10px;
+      }
 
+      .newsletter figure {
+      float: right;
+      margin-right: 0px;
+      width: 276px;
+      border: 1px solid black;
+      
+      }
 
-<pre>
-GO FORWARD
-TURN LEFT
-TURN RIGHT
-LOOK FORWARD
-LOOK LEFT
-LOOK RIGHT
-</pre>
+      figcaption {
+      font-style: italic;
+      text-align: center;
+      }
 
-<p>When the bold enigma hears <code>LOOK</code>, he issues a question
-which must be answered by the very firmament itself.</p>
+      .newsletter h1 {
+      font-size : 24px;
+      }
 
-<pre>
+      .newsletter-column {
+      font-family: courier;
+      }
 
+      code {
+      font-style: italic;
+      }
+  </style>
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 200px;"
+         ><time>2012-05-27</time:></div>
+     <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="body-area solo">
+    <div class="newsletter">
+      <h1>Mystic Astronaut #1: BOLD ENIGMA</h1>
+      <hr>
+      <div class="newsletter-column">
+	<!--
+	    <figure>
+	      <img src="images/BOLD_ENIGMA.png">
+	      <figcaption>Our Silent Hero</figcaption>
+	    </figure>
+	    -->
+	<p>Bravely ascending from the heavens below! Captain of the 
+	  <strong>SHINING VIMANA</strong>, that ever-burning sky-chariot! Silent bearer
+	  of promethian wisdom to this darkened sphere! Mysterious, courageous
+	  herald of <strong>TOMORROW</strong>!</p>
+
+	<p>The <strong>BOLD ENIGMA</strong> never speaks (his inner world is 
+	  <strong>mystery</strong>!) but he
+	  understands these words:</p>
+
+	<code><pre>
+	    go_forward()
+	    turn_left()
+	    turn_right()
+	    look_forward()
+	    look_left()
+	    look_right()
+	</pre></code>
+
+	<p>Astronaut honor requires the words to be typed just as
+	  written above, with underscores and parentheses all just
+	  so. Unless the precise words and symbols are typed, just as
+	  shown, our hero will be deaf to all orders.</p>
+
+	<p>Here are orders that will send the <strong>BOLD
+	ENIGMA</strong> walking in a square, two steps on each side,
+	without regard for his environment.</p>
+
+	<textarea style="min-height: 90px">
+	  go_forward();
+	  go_forward();
+	  turn_left();
+	</textarea>
+
+	<p>Astronauts end their sentences with semicolons instead of periods.</p>
+
+        <div style="font-size: 32px; color: red"
+             >SCROLLING IS SCREWING THIS UP. YOU NEED TO DISABLE IT.</div>
+
+	<div style="border: 1px solid black;"
+	     ><canvas width="576" height="384" id="giant-steps" 
+		      ></div>
+
+	
+      </div><!-- newsletter-column -->
+    </div><!-- newsletter -->
+  </div><!-- body-area -->
+</section>
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/chorus.js"></script>
+
+<!-- TODO MOVE bounds.js INTO character.js -->
+<script src="../js/character.js"></script>
+<script src="../js/bounds.js"></script>
+<script src="../js/tableau.js"></script>
+<script>
+(function() {
+    "use strict";
+
+    var giantStepsCanvas;
+    $(function() {
+	giantStepsCanvas = $("#giant-steps")[0];
+    });
+    
+    // Quick polyfill for animation.
+    window.requestAnimFrame = (function(callback){
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 10);
+            };
+    })();//polyfill
+
+    var giantSteps = Tableau.create();
+    var character;
+    giantSteps.onCharacterAssetsLoaded = function(newCharacter, costume) {
+	character = newCharacter;
+	character.setCostume(costume);
+	character.setPosition(20, 20);
+    };
+    giantSteps.scroll = function() { }; // Don't scroll at all.
+
+    giantSteps.load("sprites/spaceman_32x48.png");
+
+    var animation = function() {
+	if(character && giantStepsCanvas) {
+	    var now = (new Date()).getTime();
+	    character.move(now);
+	    var giantGfx = giantStepsCanvas.getContext("2d");
+	    giantGfx.save();
+	    giantGfx.scale(3.0, 3.0);
+	    giantSteps.draw(giantStepsCanvas);
+	    giantGfx.restore();
+	}
+	requestAnimFrame(animation);
+    };
+
+    requestAnimFrame(animation);    
+})();
+</script>
+</body>
+</html>

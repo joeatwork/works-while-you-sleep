@@ -19,18 +19,27 @@ window.Tableau = (function() {
         
         var loadManager = Chorus.create();
 
-        var roomImage = new Image();
-        roomImage.onload = loadManager.addCallback();
-        roomImage.src = roomImageURL;
+	var costumeImage = null;
+	if(costumeImageURL) {
+            costumeImage = new Image();
+            costumeImage.onload = loadManager.addCallback();
+            costumeImage.src = costumeImageURL;
+	}
 
-        var boundsImage = new Image();
-        boundsImage.onload = loadManager.addCallback();
-        boundsImage.src = boundsImageURL;
+	var roomImage = null;
+	if(roomImageURL) {
+            roomImage = new Image();
+            roomImage.onload = loadManager.addCallback();
+            roomImage.src = roomImageURL;
+	}
+
+        var boundsImage = null;
+	if(boundsImageURL) {
+            boundsImage = new Image();
+            boundsImage.onload = loadManager.addCallback();
+            boundsImage.src = boundsImageURL;
+	}
         
-        var costumeImage = new Image();
-        costumeImage.onload = loadManager.addCallback();
-        costumeImage.src = costumeImageURL;
-
         loadManager.setOnComplete(function() {
             tableau._whenLoaded(costumeImage, roomImage, boundsImage);
             tableau.loaded = true;
@@ -59,6 +68,15 @@ window.Tableau = (function() {
 	this.background.src = backgroundUrl;
     };
 
+    Tableau.prototype.scroll = function(character, canvas) {
+        var characterOffset = character.getCenter();
+        var viewOffsetX = canvas.width/2;
+        var scrollDistance = Math.floor(characterOffset.x - viewOffsetX);
+
+	var gfx = canvas.getContext("2d");
+        gfx.translate(-scrollDistance, 0);
+    };
+
     Tableau.prototype.draw = function(canvas) {
         if(this.isLoaded()) {
             var gfx = canvas.getContext("2d");
@@ -69,17 +87,16 @@ window.Tableau = (function() {
 	    }
 
             gfx.save();
-            // Check scrolling
-            var characterOffset = this.character.getCenter();
-            var viewOffsetX = canvas.width/2;
 
-            var scrollDistance = Math.floor(characterOffset.x - viewOffsetX);
+	    this.scroll(this.character, canvas);
 
-            gfx.translate(-scrollDistance, 0);
-            gfx.drawImage(this.roomImage, 0, 0);
+	    if(this.roomImage)
+		gfx.drawImage(this.roomImage, 0, 0);
 
 	    // gfx.drawImage(this.boundsImage, 0, 0); // DEBUG ONLY
-            this.character.draw(gfx);
+	    if(this.character)
+		this.character.draw(gfx);
+
             gfx.restore();
         }
     };
@@ -91,21 +108,33 @@ window.Tableau = (function() {
         tableau.roomImage = roomImage;
         tableau.boundsImage = boundsImage; // TODO REMOVE
 
-        var bounds = Bounds.create(boundsImage);
+	var bounds = null;
+	if(boundsImage) {
+            bounds = Bounds.create(boundsImage);
+	}
 
-        var costume = 
-            Character.Costume.create(costumeImage,
-                                     Tableau.COSTUME_SPRITE_WIDTH,
-                                     Tableau.COSTUME_SPRITE_HEIGHT);
+	var costume = null;
+	if(costumeImage) {
+            var costume =
+		Character.Costume.create(costumeImage,
+					 Tableau.COSTUME_SPRITE_WIDTH,
+					 Tableau.COSTUME_SPRITE_HEIGHT);
 
-        tableau.character = Character.create();
-        tableau.character.setCostume(costume);
-        tableau.character.setBounds(bounds)
+            tableau.character = Character.create();
+            tableau.character.setCostume(costume);
+            tableau.character.setBounds(bounds)
+	}
 
-        bounds.onReady = function() {
-            tableau.onCharacterAssetsLoaded(tableau.character, 
-                                            costume, bounds);
-        };
+	if(bounds) {
+            bounds.onReady = function() {
+		tableau.onCharacterAssetsLoaded(tableau.character, 
+						costume, bounds);
+            };
+	}
+	else {
+	    tableau.onCharacterAssetsLoaded(tableau.character, 
+					    costume, bounds);
+	}
     };
 
     return Tableau;
