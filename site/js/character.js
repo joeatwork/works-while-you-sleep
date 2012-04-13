@@ -166,25 +166,26 @@ window.Character = (function() {
             var targetX = this.xPosition + dX;
             var targetY = this.yPosition + dY;
 
+	    var isClear = true;
             if(this.bounds) {
                 var targetFootX = Math.floor(this.footX + targetX);
                 var targetFootY = Math.floor(this.footY + targetY);
                 var targetWidth = this.footWidth;
                 var targetHeight = this.footHeight;
 
-                var isClear =
+                isClear =
                     this.bounds.checkClear(targetFootX,
                                            targetFootY,
                                            targetWidth,
                                            targetHeight);
+            }
 
-                if(isClear) {
-                    this.xPosition = targetX;
-                    this.yPosition = targetY;
-                }
-                else {
-                    this.whenBlocked();
-                }
+            if(isClear) {
+                this.xPosition = targetX;
+                this.yPosition = targetY;
+            }
+            else {
+                this.whenBlocked();
             }
 
             this.now = time;

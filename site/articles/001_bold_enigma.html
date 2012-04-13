@@ -54,55 +54,52 @@
       <h1>Mystic Astronaut #1: BOLD ENIGMA</h1>
       <hr>
       <div class="newsletter-column">
-	<!--
-	    <figure>
-	      <img src="images/BOLD_ENIGMA.png">
-	      <figcaption>Our Silent Hero</figcaption>
-	    </figure>
-	    -->
-	<p>Bravely ascending from the heavens below! Captain of the 
-	  <strong>SHINING VIMANA</strong>, that ever-burning sky-chariot! Silent bearer
-	  of promethian wisdom to this darkened sphere! Mysterious, courageous
-	  herald of <strong>TOMORROW</strong>!</p>
+        <!--
+            <figure>
+              <img src="images/BOLD_ENIGMA.png">
+              <figcaption>Our Silent Hero</figcaption>
+            </figure>
+            -->
+        <p>Bravely ascending from the heavens below! Captain of the 
+          <strong>SHINING VIMANA</strong>, that ever-burning sky-chariot! Silent bearer
+          of promethian wisdom to this darkened sphere! Mysterious, courageous
+          herald of <strong>TOMORROW</strong>!</p>
 
-	<p>The <strong>BOLD ENIGMA</strong> never speaks (his inner world is 
-	  <strong>mystery</strong>!) but he
-	  understands these words:</p>
+        <p>The <strong>BOLD ENIGMA</strong> never speaks (his inner world is 
+          <strong>mystery</strong>!) but he
+          understands these words:</p>
 
-	<code><pre>
-	    go_forward()
-	    turn_left()
-	    turn_right()
-	    look_forward()
-	    look_left()
-	    look_right()
-	</pre></code>
+        <code><pre>
+go_forward()
+turn_left()
+turn_right()
+look_forward()
+look_left()
+look_right()
+        </pre></code>
 
-	<p>Astronaut honor requires the words to be typed just as
-	  written above, with underscores and parentheses all just
-	  so. Unless the precise words and symbols are typed, just as
-	  shown, our hero will be deaf to all orders.</p>
+        <p>Astronaut honor requires the words to be typed just as
+          written above, with underscores and parentheses all just
+          so. Unless the precise words and symbols are typed, just as
+          shown, our hero will be deaf to all orders.</p>
 
-	<p>Here are orders that will send the <strong>BOLD
-	ENIGMA</strong> walking in a square, two steps on each side,
-	without regard for his environment.</p>
+        <p>Here is the <strong>cosmic mantra</strong> that will send our hero
+          walking in a square, two steps on each side,
+          without regard for his environment.</p>
 
-	<textarea style="min-height: 90px">
-	  go_forward();
-	  go_forward();
-	  turn_left();
-	</textarea>
+<textarea style="min-height: 90px">
+go_forward();
+go_forward();
+turn_left();
+</textarea>
 
-	<p>Astronauts end their sentences with semicolons instead of periods.</p>
+        <p>Astronauts end their sentences with semicolons instead of periods.</p>
 
-        <div style="font-size: 32px; color: red"
-             >SCROLLING IS SCREWING THIS UP. YOU NEED TO DISABLE IT.</div>
+        <div style="border: 1px solid black;"
+             ><canvas width="576" height="384" id="giant-steps" 
+                      ></div>
 
-	<div style="border: 1px solid black;"
-	     ><canvas width="576" height="384" id="giant-steps" 
-		      ></div>
-
-	
+        
       </div><!-- newsletter-column -->
     </div><!-- newsletter -->
   </div><!-- body-area -->
@@ -120,7 +117,7 @@
 
     var giantStepsCanvas;
     $(function() {
-	giantStepsCanvas = $("#giant-steps")[0];
+        giantStepsCanvas = $("#giant-steps")[0];
     });
     
     // Quick polyfill for animation.
@@ -138,25 +135,67 @@
     var giantSteps = Tableau.create();
     var character;
     giantSteps.onCharacterAssetsLoaded = function(newCharacter, costume) {
-	character = newCharacter;
-	character.setCostume(costume);
-	character.setPosition(20, 20);
+        character = newCharacter;
+        character.setCostume(costume);
+        character.setPosition(40, 10);
+
+        character.setSpeed(0, 32);
+
+        var program = [ 'go_forward', 'go_forward', 'turn_left' ];
+        var frameLength = 1000;
+
+        var instruction = null;
+        var lastFrame = null;
+        var lastTime = null;
+
+        character.move = function(time) {
+
+            if((! lastFrame) || (! lastTime)) {
+                lastFrame = time;
+            }
+            else if(frameLength > (time - lastFrame)) {
+                if ('go_forward' === instruction) {
+                    var deltaT = time - lastTime;
+                    var dX = this.xSpeed * (deltaT/1000);
+                    var dY = this.ySpeed * (deltaT/1000);
+
+                    this.xPosition += dX;
+                    this.yPosition += dY;
+                }
+            }
+            else { // FRAME BOUNDRY
+                if (instruction) {
+                    program.push(instruction);
+                }
+                instruction = program.shift();
+
+                if ('turn_left' === instruction){
+                    var oldYSpeed = this.ySpeed;
+                    this.ySpeed = -this.xSpeed
+                    this.xSpeed = oldYSpeed;
+                }
+
+                lastFrame = time;
+            }
+
+            lastTime = time;
+        };
     };
     giantSteps.scroll = function() { }; // Don't scroll at all.
 
     giantSteps.load("sprites/spaceman_32x48.png");
 
     var animation = function() {
-	if(character && giantStepsCanvas) {
-	    var now = (new Date()).getTime();
-	    character.move(now);
-	    var giantGfx = giantStepsCanvas.getContext("2d");
-	    giantGfx.save();
-	    giantGfx.scale(3.0, 3.0);
-	    giantSteps.draw(giantStepsCanvas);
-	    giantGfx.restore();
-	}
-	requestAnimFrame(animation);
+        if(character && giantStepsCanvas) {
+            var now = (new Date()).getTime();
+            character.move(now);
+            var giantGfx = giantStepsCanvas.getContext("2d");
+            giantGfx.save();
+            giantGfx.scale(3.0, 3.0);
+            giantSteps.draw(giantStepsCanvas);
+            giantGfx.restore();
+        }
+        requestAnimFrame(animation);
     };
 
     requestAnimFrame(animation);    
