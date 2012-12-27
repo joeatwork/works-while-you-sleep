@@ -2,7 +2,7 @@
 window.level = (function() {
     "use strict";
 
-    var WALK_SPEED = 16/1000; // PIXELS PER MILLISECOND
+    var WALK_SPEED = 32/1000; // PIXELS PER MILLISECOND
 
     var PlayerCharacter = function(startX,
 				   startY,
@@ -27,18 +27,22 @@ window.level = (function() {
 	// We tend to get stuck in the walls- We need a better pathfinding algorithm
 	// or lower-fi (and thus smoother) bounds
 	update: function(nowTime) {
-	    var lastTime = this.lastTime;
-	    var deltaTime = nowTime - this.lastTime;
-	    this.lastTime = nowTime;
-
-	    if (lastTime < 0) {
+	    if (this.lastTime < 0) {
+		this.lastTime = nowTime;
 		return;
 	    }
 	    // ELSE we have a valid delta time
 
+	    var deltaTime = nowTime - this.lastTime;
 	    var moveX = this.dx * WALK_SPEED * deltaTime;
 	    var moveY = this.dy * WALK_SPEED * deltaTime;
 
+	    if ((Math.abs(moveX) < 1.0) && (Math.abs(moveY) < 1.0)) {
+		return;
+	    }
+	    // ELSE we're committed to move
+
+	    this.lastTime = nowTime;
 	    var destX = Math.floor(this.x + moveX);
 	    var destY = Math.floor(this.y + moveY);
 
@@ -57,10 +61,12 @@ window.level = (function() {
 
 	whenBlocked: function() {
 	    var whim = -1;
-	    if (Math.random() > 0.5) whim = 1;
+	    if (Math.random() < 0.5) {
+		whim = 1;
+	    }
 
 	    var oldDx = this.dx;
-	    this.dx = - this.dy * whim;
+	    this.dx = this.dy * whim;
 	    this.dy = oldDx;
 	}
     };
