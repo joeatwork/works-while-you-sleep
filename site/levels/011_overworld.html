@@ -1,0 +1,106 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>011 "Overworld" : Works While You Sleep!</title>
+  <style>
+    body {
+        background-color: #A8A8A8;
+        color: white;
+    }
+
+    .screen_area {
+        display: inline-block;
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	border-left: 2px solid black;
+    }
+
+    .screen_area:last-child {
+	border-right: 2px solid black;
+    }
+  </style>
+<!-- start Mixpanel --><script type="text/javascript">(function(d,c){var a,b,g,e;a=d.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===d.location.protocol?"https:":"http:")+'//api.mixpanel.com/site_media/js/api/mixpanel.2.js';b=d.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b);c._i=[];c.init=function(a,d,f){var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";g="disable track track_pageview track_links track_forms register register_once unregister identify name_tag set_config".split(" ");
+for(e=0;e<g.length;e++)(function(a){b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,0)))}})(g[e]);c._i.push([a,d,f])};window.mixpanel=c})(document,[]);
+mixpanel.init("8225af3b4eb4e53902e4cd79c242cc60");</script><!-- end Mixpanel -->
+<script>
+// Mixpanel stuff
+mixpanel.track('pageview', { page: 'overworld_001' });
+</script>
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 200px;"
+         ><time>2012-01-30</time:></div>
+    <h1>Works While You Sleep!</h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="screen_area screen_01_area"
+       style="background-color: white;"
+       ><canvas width="320" height="320" id="screen_01"
+                ></div><!--
+
+ --><div class="screen_area screen_02_area"
+       style="background-color: white;"
+       ><canvas width="320" height="320" id="screen_02"
+                ></div><!--
+
+  --><div class="screen_area screen_02_area"
+       style="background-color: white;"
+       ><canvas width="320" height="320" id="screen_03"
+                ></div><!-- .body-area -->
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
+</section>
+
+<!-- NO MORE CONTENT -->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/v2.0/chorus.js"></script>
+<script src="../js/v2.0/bounds.js"></script>
+<script>
+$(document).ready(function() {
+    "use strict";
+
+    var loadManager = new Chorus();
+    var background = new Image();
+    background.onload = loadManager.addCallback();
+    background.src = "011_overworld/world_map_background.png";
+
+    var bounds = new Image();
+    bounds.onload = loadManager.addCallback();
+    bounds.src = "011_overworld/world_map_bounds.png";
+    
+    var heroes = new Image();
+    heroes.onload = loadManager.addCallback();
+    heroes.src = "sprites/spaceman_overworld_18x18.png";
+
+    var screen01 = $('#screen_01')[0];
+    var screen02 = $('#screen_02')[0];
+    var screen03 = $('#screen_03')[0];
+
+    loadManager.setOnComplete(function() {
+	var gfx01 = screen01.getContext("2d");
+	var gfx02 = screen02.getContext("2d");
+	var gfx03 = screen03.getContext("2d");
+
+	gfx01.drawImage(background, 0, 0);
+	gfx02.drawImage(background, 0, 0);
+	gfx03.drawImage(background, 0, 0);
+    });
+
+    loadManager.arm();
+
+});
+</script>
+</body>
+</html>
