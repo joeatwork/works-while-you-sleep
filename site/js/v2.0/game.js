@@ -60,14 +60,16 @@ window.level = (function() {
 	},
 
 	whenBlocked: function() {
-	    var whim = -1;
-	    if (Math.random() < 0.5) {
-		whim = 1;
+	    if (Math.random() < 0.5) { // counterclockwise
+		var oldDy = this.dy;
+		this.dy = - this.dx;
+		this.dx = oldDy;
 	    }
-
-	    var oldDx = this.dx;
-	    this.dx = this.dy * whim;
-	    this.dy = oldDx;
+	    else { // clockwise
+		var oldDx = this.dx;
+		this.dx = - this.dy;
+		this.dy = oldDx;
+	    }
 	}
     };
 
