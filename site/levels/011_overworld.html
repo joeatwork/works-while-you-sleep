@@ -60,42 +60,181 @@ mixpanel.track('pageview', { page: 'overworld_001' });
       Built by Joe Bowers, who maintains a web site at
       <a href="http://www.joe-bowers.com">joe-bowers.com</a>
     </div><!-- .about-box -->
+    <div>Running at <span id="show_fps">?</span> frames per second</div>
   </div><!-- .about-area -->
 </section>
 
 <!-- NO MORE CONTENT -->
 <script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../lib/underscore-1.4.3.min.js"></script>
 <script src="../js/v2.0/chorus.js"></script>
 <script src="../js/v2.0/bounds.js"></script>
+<script src="../js/v2.0/game.js"></script>
 <script>
 $(document).ready(function() {
     "use strict";
+
+    window.requestAnimFrame = (function(callback){
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 10);
+            };
+    })();//polyfill
+
+    var heroFrames01 = {
+	NORTH: [ { top: 0, left: 32 * 1, width: 32, height: 32 } ],
+	WALK_NORTH: [ { top: 0, left: 32 * 5, width: 32, height: 32 },
+		      { top: 0, left: 32 * 6, width: 32, height: 32 } ],
+	SOUTH: [ { top: 0, left: 0, width: 32, height: 32 } ],
+	WALK_SOUTH: [ { top: 0, left: 32 * 3, width: 32, height: 32 },
+		      { top: 0, left: 32 * 4, width: 32, height: 32 } ],
+	EAST: [ { top: 0, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 0, left: 32 * 8, width: 32, height: 32 },
+		     { top: 0, left: 32 * 7, width: 32, height: 32 } ],
+	WEST: [ { top: 0, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 0, left: 32 * 9, width: 32, height: 32 },
+		     { top: 0, left: 32 * 10, width: 32, height: 32 } ]
+    };
+
+    var heroFrames02 = {
+	NORTH: [ { top: 32, left: 32 * 1, width: 32, height: 32 } ],
+	WALK_NORTH: [ { top: 32, left: 32 * 5, width: 32, height: 32 },
+		      { top: 32, left: 32 * 6, width: 32, height: 32 } ],
+	SOUTH: [ { top: 32, left: 0, width: 32, height: 32 } ],
+	WALK_SOUTH: [ { top: 32, left: 32 * 3, width: 32, height: 32 },
+		      { top: 32, left: 32 * 4, width: 32, height: 32 } ],
+	EAST: [ { top: 32, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 32, left: 32 * 8, width: 32, height: 32 },
+		     { top: 32, left: 32 * 7, width: 32, height: 32 } ],
+	WEST: [ { top: 32, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 32, left: 32 * 9, width: 32, height: 32 },
+		     { top: 32, left: 32 * 10, width: 32, height: 32 } ]
+    };
+
+    var heroFrames03 = {
+	NORTH: [ { top: 64, left: 32 * 1, width: 32, height: 32 } ],
+	WALK_NORTH: [ { top: 64, left: 32 * 5, width: 32, height: 32 },
+		      { top: 64, left: 32 * 6, width: 32, height: 32 } ],
+	SOUTH: [ { top: 64, left: 0, width: 32, height: 32 } ],
+	WALK_SOUTH: [ { top: 64, left: 32 * 3, width: 32, height: 32 },
+		      { top: 64, left: 32 * 4, width: 32, height: 32 } ],
+	EAST: [ { top: 64, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 64, left: 32 * 8, width: 32, height: 32 },
+		     { top: 64, left: 32 * 7, width: 32, height: 32 } ],
+	WEST: [ { top: 64, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 64, left: 32 * 9, width: 32, height: 32 },
+		     { top: 64, left: 32 * 10, width: 32, height: 32 } ]
+    };
+
+    var WALK_ANIMATION_SPEED = 8; // PIXELS PER FRAME ANIMATION
+
+    // (logical) center of hero
+    var heroStart01 = { x: 320 + 16, y: 800 + 16, dx: 0, dy: 1 };
+    var heroStart02 = { x: 928 + 16, y: 800 + 16, dx: 0, dy: 1 };
+    var heroStart03 = { x: 800 + 16, y: 384 + 16, dx: 0, dy: 1 };
+
+    var screen01 = $('#screen_01')[0];
+    var screen02 = $('#screen_02')[0];
+    var screen03 = $('#screen_03')[0];
+    var show_fps = $('#show_fps');
+
+    // WONT ACTUALLY WORK- we want folks to see each other pass by, yeah?
+    var drawHero = function(screenWidth, screenHeight, gfx, heroPosition, heroFrame) {
+	var heroWidth = heroFrame.width;
+	var heroHeight = heroFrame.height;
+	var heroOffsetX = (screenWidth/2) - (heroWidth / 2);
+	var heroOffsetY = (screenHeight/2) - (heroHeight / 2);
+
+	var bgOffsetX = heroPosition.x - (screenWidth/2);
+	var bgOffsetY = heroPosition.y - (screenHeight/2);
+
+	heroOffsetY = heroOffsetY - 8; // aesthetic tweak.
+
+	gfx.drawImage(background, -bgOffsetX, -bgOffsetY);
+	gfx.drawImage(heroes,
+		      heroFrame.left, heroFrame.top,
+		      heroWidth, heroHeight,
+		      heroOffsetX, heroOffsetY,
+		      heroWidth, heroHeight);
+    }
+
+    ////////////////////////////////////
+    // Load and run.
 
     var loadManager = new Chorus();
     var background = new Image();
     background.onload = loadManager.addCallback();
     background.src = "011_overworld/world_map_background.png";
-
-    var bounds = new Image();
-    bounds.onload = loadManager.addCallback();
-    bounds.src = "011_overworld/world_map_bounds.png";
     
     var heroes = new Image();
     heroes.onload = loadManager.addCallback();
-    heroes.src = "sprites/spaceman_overworld_18x18.png";
+    heroes.src = "sprites/spaceman_overworld_16x16.png";
 
-    var screen01 = $('#screen_01')[0];
-    var screen02 = $('#screen_02')[0];
-    var screen03 = $('#screen_03')[0];
+    var bounds = null;
+    var boundsReady = loadManager.addCallback();
+    var boundsImage = new Image();
+    boundsImage.onload = function() {
+	bounds = Bounds.create(boundsImage);
+	bounds.onReady = boundsReady;
+    };
+    boundsImage.src = "011_overworld/world_map_bounds.png";
 
     loadManager.setOnComplete(function() {
-	var gfx01 = screen01.getContext("2d");
-	var gfx02 = screen02.getContext("2d");
-	var gfx03 = screen03.getContext("2d");
+	var hero01 = new window.level.PlayerCharacter(heroStart01.x,
+						      heroStart01.y,
+						      heroStart01.dx,
+						      heroStart01.dy,
+						      32, 32, bounds);
 
-	gfx01.drawImage(background, 0, 0);
-	gfx02.drawImage(background, 0, 0);
-	gfx03.drawImage(background, 0, 0);
+	var hero02 = new window.level.PlayerCharacter(heroStart02.x,
+						      heroStart02.y,
+						      heroStart02.dx,
+						      heroStart02.dy,
+						      32, 32, bounds);
+
+	var hero03 = new window.level.PlayerCharacter(heroStart03.x,
+						      heroStart03.y,
+						      heroStart03.dx,
+						      heroStart03.dy,
+						      32, 32, bounds);
+
+
+	var fps_update = Date.now();
+	var frames = 0;
+	var animate = function() {
+	    var now = Date.now();
+	    frames++;
+
+	    if (now - fps_update > 1000) {
+		show_fps.text(frames * 1000 / (now - fps_update));
+		frames = 0;
+		fps_update = now;
+	    }
+
+	    hero01.update(now);
+	    hero02.update(now);
+	    hero03.update(now);
+
+	    var gfx01 = screen01.getContext("2d");
+	    var gfx02 = screen02.getContext("2d");
+	    var gfx03 = screen03.getContext("2d");
+
+	    drawHero(screen01.width, screen01.height, gfx01,
+		     hero01, heroFrames01.SOUTH[0]);
+
+	    drawHero(screen02.width, screen02.height, gfx02,
+		     hero02, heroFrames02.SOUTH[0]);
+
+	    drawHero(screen03.width, screen03.height, gfx03,
+		     hero03, heroFrames03.SOUTH[0]);
+
+	    requestAnimFrame(animate);
+	};
+	requestAnimFrame(animate);
     });
 
     loadManager.arm();
