@@ -25,11 +25,11 @@ window.level = (function() {
 	    else {
 		var timePassed = nowTime - this._beginTime;
 
-		if (timePassed > 7000) {
+		if (timePassed > 9000) {
 		    if (this.state() != Battle.STATE_COMPLETE)
 			this._transition(Battle.STATE_COMPLETE);
 		}
-		else if (timePassed > 4000) {
+		else if (timePassed > 5000) {
 		    if (this.state() != Battle.STATE_OPPONENT_TURN)
 			this._transition(Battle.STATE_OPPONENT_TURN);
 		}
@@ -44,16 +44,22 @@ window.level = (function() {
     Battle.prototype.begin = function() {
 	var nameIndex = _.random(0, window.data.first_names.length - 1);
 	this._opponentName = window.data.first_names[ nameIndex ];
+
+	var heroSaysIndex = _.random(0, window.data.dialog.soaps.length - 2);
+	var opponentSaysIndex = heroSaysIndex + 1;
+	this._heroSays = window.data.dialog.soaps[ heroSaysIndex ];
+	this._opponentSays = window.data.dialog.soaps[ opponentSaysIndex ];
+
 	this._beginTime = -1;
 	this._transition(Battle.STATE_BEGIN);
     };
 
     Battle.prototype.heroSays = function() {
-	return "What do you call the mailman after he loses his job?";
+	return this._heroSays;
     };
 
     Battle.prototype.opponentSays = function() {
-	return "I dunno. Just ... some dude?";
+	return this._opponentSays;
     };
 
     Battle.prototype.end = function() {
@@ -110,7 +116,7 @@ window.level = (function() {
 	    this.movedDx = 0;
 	    this.movedDy = 0;
 
-	    this.stepsUntilBattle = _.random(10, 60);
+	    this.stepsUntilBattle = _.random(10, 100);
 	    this.steps = 0;
 	    this.battling = false;
 
