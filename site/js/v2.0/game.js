@@ -4,22 +4,76 @@ window.level = (function() {
 
     //////////////////////////////
 
-    var Battle = function() {
+    var Battle = function(observer) {
+	this._state = Battle.STATE_NO_BATTLE;
+	this._observer = observer;
+    };
+
+    Battle.STATE_NO_BATTLE = "NO BATTLE";
+    Battle.STATE_BEGIN = "BATTLE BEGINS";
+    Battle.STATE_HERO_TURN = "HERO TURN";
+    Battle.STATE_OPPONENT_TURN = "OPPONENT TURN";
+    Battle.STATE_COMPLETE = "BATTLE COMPLETE";
+
+    Battle.prototype.update = function(nowTime) {
+	var oldState = this.state();
+
+	if (oldState != Battle.STATE_NO_BATTLE) {
+	    if (this._beginTime < 0) {
+		this._beginTime = nowTime;
+	    }
+	    else {
+		var timePassed = nowTime - this._beginTime;
+
+		if (timePassed > 7000) {
+		    if (this.state() != Battle.STATE_COMPLETE)
+			this._transition(Battle.STATE_COMPLETE);
+		}
+		else if (timePassed > 4000) {
+		    if (this.state() != Battle.STATE_OPPONENT_TURN)
+			this._transition(Battle.STATE_OPPONENT_TURN);
+		}
+		else if (timePassed > 1000) {
+		    if (this.state() != Battle.STATE_HERO_TURN)
+			this._transition(Battle.STATE_HERO_TURN);
+		}
+	    }
+	}
+    };
+
+    Battle.prototype.begin = function() {
 	var nameIndex = _.random(0, window.data.first_names.length - 1);
 	this._opponentName = window.data.first_names[ nameIndex ];
+	this._beginTime = -1;
+	this._transition(Battle.STATE_BEGIN);
     };
+
+    Battle.prototype.heroSays = function() {
+	return "What do you call the mailman after he loses his job?";
+    };
+
+    Battle.prototype.opponentSays = function() {
+	return "I dunno. Just ... some dude?";
+    };
+
+    Battle.prototype.end = function() {
+	this._transition(Battle.STATE_NO_BATTLE);
+    }
+
+    Battle.prototype.state = function() {
+	return this._state;
+    }
 
     Battle.prototype.opponentName = function() {
 	return this._opponentName;
     };
 
-    Battle.prototype.youSaid = function() {
-	return "What time is it?";
-    };
-
-    Battle.prototype.theySaid = function() {
-	return "It's Business Time!";
-    };
+    Battle.prototype._transition = function(newState) {
+	var self = this;
+	var oldState = self._state;
+	self._state = newState;
+	setTimeout(function() { self._observer(self, oldState); }, 0);
+    }
 
     ///////////////////////////////////
 
@@ -56,7 +110,7 @@ window.level = (function() {
 	    this.movedDx = 0;
 	    this.movedDy = 0;
 
-	    this.stepsUntilBattle = _.random(10, 50);
+	    this.stepsUntilBattle = _.random(10, 60);
 	    this.steps = 0;
 	    this.battling = false;
 
@@ -151,6 +205,7 @@ window.level = (function() {
 
 
     return {
+	Battle: Battle,
 	PlayerCharacter: PlayerCharacter
     }
 })();

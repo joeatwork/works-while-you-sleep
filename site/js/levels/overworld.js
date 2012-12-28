@@ -105,10 +105,6 @@ window.overworld.bootstrap = function() {
 	screenGfx.drawImage(backCanvas, -bgOffsetX, -bgOffsetY);
     };
 
-    var drawBattle = function($battle, hero) {
-	$battle.show();
-    }
-
     var ANIMATION_WIDTH_PX = 32; // in PIXELS, not TIME
     var pickFrame = function(hero, heroFrames) {
 	var frameListName = stateToFrames[ hero.state() ];
@@ -124,6 +120,35 @@ window.overworld.bootstrap = function() {
 	var frameList = heroFrames[ frameListName ];
 	var offsetFrame = Math.floor((offsetPx / ANIMATION_WIDTH_PX) * frameList.length);
 	return frameList[offsetFrame];
+    };
+
+    /////////////////////////////////////////
+    // Battles are event driven
+
+    var observeBattle = function($battleElement, hero, battle, oldState) {
+	var newState = battle.state();
+
+	if (newState == window.level.Battle.STATE_BEGIN) {
+	    $battleElement.find('.opponent_name').text(battle.opponentName());
+	    $battleElement.find('.dialog').text("GO!");	    
+	    $battleElement.show();
+	}
+	else if (newState == window.level.Battle.STATE_HERO_TURN) {
+	    var blurb = battle.heroSays();
+	    $battleElement.find('.dialog').text('YOU: ' + blurb);
+	}
+	else if (newState == window.level.Battle.STATE_OPPONENT_TURN) {
+	    var name = battle.opponentName();
+	    var blurb = battle.opponentSays();
+	    $battleElement.find('.dialog').text(name + ': ' + blurb);
+	}
+	else if (newState == window.level.Battle.STATE_COMPLETE) {
+	    battle.end();
+	}
+	else if (newState == window.level.Battle.STATE_NO_BATTLE) {
+	    $battleElement.hide();
+	    hero.reset();
+	}
     };
 
     ////////////////////////////////////
@@ -160,6 +185,22 @@ window.overworld.bootstrap = function() {
 						      heroStart03.y,
 						      32, 32, bounds);
 
+	var observer01 = function(battle, oldState) {
+	    observeBattle($battle01, hero01, battle, oldState);
+	};
+	var observer02 = function(battle, oldState) {
+	    observeBattle($battle02, hero02, battle, oldState);
+	};
+	var observer03 = function(battle, oldState) {
+	    observeBattle($battle03, hero03, battle, oldState);
+	};
+
+	var battle01 = new window.level.Battle(observer01);
+	var battle02 = new window.level.Battle(observer02);
+	var battle03 = new window.level.Battle(observer03);
+
+	////////////////////////////////////////////////////
+	
 	var renderCanvas = document.createElement('canvas');
 	renderCanvas.width = background.width;
 	renderCanvas.height = background.height;
@@ -180,6 +221,10 @@ window.overworld.bootstrap = function() {
 	    hero02.update(now);
 	    hero03.update(now);
 
+	    battle01.update(now);
+	    battle02.update(now);
+	    battle03.update(now);
+
 	    var renderGfx = renderCanvas.getContext("2d");
 	    renderGfx.drawImage(background, 0, 0);
 
@@ -193,21 +238,27 @@ window.overworld.bootstrap = function() {
 	    drawHero(renderGfx, hero03, hero03Frame);
 
 	    if (hero01.state() == window.level.PlayerCharacter.FIGHTING) {
-		drawBattle($battle01, hero01);
+		if (battle01.state() == window.level.Battle.STATE_NO_BATTLE) {
+		    battle01.begin();
+		}
 	    }
 	    else {
 		drawScreen(renderCanvas, screen01, hero01);
 	    }
 
 	    if (hero02.state() == window.level.PlayerCharacter.FIGHTING) {
-		drawBattle($battle02, hero02);
+		if (battle02.state() == window.level.Battle.STATE_NO_BATTLE) {
+		    battle02.begin();
+		}
 	    }
 	    else {
 		drawScreen(renderCanvas, screen02, hero02);
 	    }
 
 	    if (hero03.state() == window.level.PlayerCharacter.FIGHTING) {
-		drawBattle($battle03, hero03);
+		if (battle03.state() == window.level.Battle.STATE_NO_BATTLE) {
+		    battle03.begin();
+		}
 	    }
 	    else {
 		drawScreen(renderCanvas, screen03, hero03);
