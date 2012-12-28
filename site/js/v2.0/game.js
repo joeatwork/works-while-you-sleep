@@ -2,7 +2,7 @@
 window.level = (function() {
     "use strict";
 
-    var WALK_SPEED = 32/1000; // PIXELS PER MILLISECOND
+    var WALK_SPEED = 64/1000; // PIXELS PER MILLISECOND
 
     var PlayerCharacter = function(startX,
 				   startY,
@@ -42,17 +42,17 @@ window.level = (function() {
 	    // ELSE we have a valid delta time
 
 	    var deltaTime = nowTime - this.lastTime;
-	    var moveX = this.dx * WALK_SPEED * deltaTime;
-	    var moveY = this.dy * WALK_SPEED * deltaTime;
+	    var moveX = (this.dx * WALK_SPEED * deltaTime) | 0; // round toward 0
+	    var moveY = (this.dy * WALK_SPEED * deltaTime) | 0; // rount toward 0
 
-	    if ((Math.abs(moveX) < 1.0) && (Math.abs(moveY) < 1.0)) {
+	    if ((Math.abs(moveX) < 1) && (Math.abs(moveY) < 1)) {
 		return;
 	    }
 	    // ELSE we're committed to move
 
 	    this.lastTime = nowTime;
-	    var destX = Math.floor(this.x + moveX);
-	    var destY = Math.floor(this.y + moveY);
+	    var destX = this.x + moveX;
+	    var destY = this.y + moveY;
 
 
 	    var halfWidth = Math.floor(this.width / 2);

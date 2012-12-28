@@ -172,6 +172,23 @@ $(document).ready(function() {
 	screenGfx.drawImage(backCanvas, -bgOffsetX, -bgOffsetY);
     }
 
+    var ANIMATION_WIDTH_PX = 32; // in PIXELS, not TIME
+    var pickFrame = function(hero, heroFrames) {
+	var frameListName = orientationToFrames[ hero.orientation() ];
+	var offsetPx = 0;
+	if ((frameListName == 'WALK_EAST') ||
+	    (frameListName == 'WALK_WEST')) {
+	    offsetPx = hero.x % ANIMATION_WIDTH_PX;
+	}
+	else {
+	    offsetPx = hero.y % ANIMATION_WIDTH_PX;
+	}
+
+	var frameList = heroFrames[ frameListName ];
+	var offsetFrame = Math.floor((offsetPx / ANIMATION_WIDTH_PX) * frameList.length);
+	return frameList[offsetFrame];
+    }
+
     ////////////////////////////////////
     // Load and run.
 
@@ -232,15 +249,16 @@ $(document).ready(function() {
 	    hero02.update(now);
 	    hero03.update(now);
 
-	    var hero01Frame = heroFrames01[ orientationToFrames[ hero01.orientation() ] ][0];
-	    var hero02Frame = heroFrames02[ orientationToFrames[ hero02.orientation() ] ][0];
-	    var hero03Frame = heroFrames03[ orientationToFrames[ hero03.orientation() ] ][0];
-
 	    var renderGfx = renderCanvas.getContext("2d");
 	    renderGfx.drawImage(background, 0, 0);
 
+	    var hero01Frame = pickFrame(hero01, heroFrames01);
 	    drawHero(renderGfx, hero01, hero01Frame);
+
+	    var hero02Frame = pickFrame(hero02, heroFrames02);
 	    drawHero(renderGfx, hero02, hero02Frame);
+
+	    var hero03Frame = pickFrame(hero03, heroFrames03);
 	    drawHero(renderGfx, hero03, hero03Frame);
 
 	    drawScreen(renderCanvas, screen01, hero01);
