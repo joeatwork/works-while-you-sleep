@@ -2,12 +2,8 @@
 <head>
   <meta charset="UTF-8">
   <title>011 "Overworld" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/robot_series.css">
   <style>
-    body {
-        background-color: #A8A8A8;
-        color: white;
-    }
-
     .screen_area {
         display: inline-block;
 	border-top: 2px solid black;
@@ -31,7 +27,7 @@ mixpanel.track('pageview', { page: 'overworld_001' });
 <header>
   <hgroup>
     <div id="datebox"
-         style="float: right; width: 200px;"
+         style="float: right; width: 160px;"
          ><time>2012-01-30</time:></div>
     <h1>Works While You Sleep!</h1>
   </hgroup>  
@@ -60,7 +56,8 @@ mixpanel.track('pageview', { page: 'overworld_001' });
       Built by Joe Bowers, who maintains a web site at
       <a href="http://www.joe-bowers.com">joe-bowers.com</a>
     </div><!-- .about-box -->
-    <div>Running at <span id="show_fps">?</span> frames per second</div>
+    <div style="display:none"
+         >Running at <span id="show_fps">?</span> frames per second</div>
   </div><!-- .about-area -->
 </section>
 
