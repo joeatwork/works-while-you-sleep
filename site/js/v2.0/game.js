@@ -2,26 +2,43 @@
 window.level = (function() {
     "use strict";
 
+    //////////////////////////////
+
+    var Battle = function() {
+	var nameIndex = _.random(0, window.data.first_names.length - 1);
+	this._opponentName = window.data.first_names[ nameIndex ];
+    };
+
+    Battle.prototype.opponentName = function() {
+	return this._opponentName;
+    };
+
+    Battle.prototype.youSaid = function() {
+	return "What time is it?";
+    };
+
+    Battle.prototype.theySaid = function() {
+	return "It's Business Time!";
+    };
+
+    ///////////////////////////////////
+
     var WALK_SPEED = 64/1000; // PIXELS PER MILLISECOND
+    var PIXELS_PER_STEP = 32; // PIXELS PER "STEP" FOR BATTLE FREQUENCY
 
     var PlayerCharacter = function(startX,
 				   startY,
-				   startDx,
-				   startDy,
 				   width,
 				   height,
 				   bounds
 				  ) {
 	this.x = startX;
 	this.y = startY;
-	this.dx = startDx;
-	this.dy = startDy;
-	this.movedDx = 0;
-	this.movedDy = 0;
 	this.width = width;
 	this.height = height;
 	this.bounds = bounds;
-	this.lastTime = -1;
+
+	this.reset();
     };
 
     PlayerCharacter.WALK_NORTH = 'WALK_NORTH';
@@ -29,16 +46,37 @@ window.level = (function() {
     PlayerCharacter.WALK_EAST = 'WALK_EAST';
     PlayerCharacter.WALK_WEST = 'WALK_WEST';
     PlayerCharacter.REST = 'REST';
+    PlayerCharacter.FIGHTING = 'FIGHTING';
 
     PlayerCharacter.prototype = {
 
-	// We tend to get stuck in the walls- We need a better pathfinding algorithm
-	// or lower-fi (and thus smoother) bounds
+	reset: function() {
+	    this.lastTime = -1;
+
+	    this.movedDx = 0;
+	    this.movedDy = 0;
+
+	    this.stepsUntilBattle = _.random(10, 50);
+	    this.steps = 0;
+	    this.battling = false;
+
+	    this.dx = 0;
+	    this.dy = 1;
+	},
+
 	update: function(nowTime) {
-	    if (this.lastTime < 0) {
+	    if (this.battling) {
+		return;
+	    }
+	    else if (this.steps > this.stepsUntilBattle) {
+		this.battling = true;
+		return;
+	    }
+	    else if (this.lastTime < 0) {
 		this.lastTime = nowTime;
 		return;
 	    }
+
 	    // ELSE we have a valid delta time
 
 	    var deltaTime = nowTime - this.lastTime;
@@ -54,7 +92,6 @@ window.level = (function() {
 	    var destX = this.x + moveX;
 	    var destY = this.y + moveY;
 
-
 	    var halfWidth = Math.floor(this.width / 2);
 	    var halfHeight = Math.floor(this.height / 2);
 
@@ -68,6 +105,9 @@ window.level = (function() {
 		this.y = destY;
 		this.movedDx = moveX;
 		this.movedDy = moveY;
+
+		var newSteps = Math.abs(moveX) + Math.abs(moveY);
+		this.steps = this.steps + (newSteps/PIXELS_PER_STEP);
 	    }
 	    else {
 		this.whenBlocked();
@@ -87,8 +127,11 @@ window.level = (function() {
 	    }
 	},
 
-	orientation: function() {
-	    if (this.movedDy > 0) {
+	state: function() {
+	    if (this.battling) {
+		return PlayerCharacter.FIGHTING;
+	    }
+	    else if (this.movedDy > 0) {
 		return PlayerCharacter.WALK_SOUTH;
 	    }
 	    else if (this.movedDy < 0) {
@@ -105,6 +148,7 @@ window.level = (function() {
 	    }		
 	}
     };
+
 
     return {
 	PlayerCharacter: PlayerCharacter

@@ -20,7 +20,7 @@ header, section {
 }
 
 h1, h2, h3, h4, header time {
-    font-family : 'HeaderFont', helvetica, san-serif;
+    font-family : 'HeaderFont', helvetica, sans-serif;
     font-size: 16px;
     font-weight: normal;
     text-transform: uppercase;
