@@ -142,24 +142,27 @@ $(document).ready(function() {
     var screen03 = $('#screen_03')[0];
     var show_fps = $('#show_fps');
 
-    // WONT ACTUALLY WORK- we want folks to see each other pass by, yeah?
-    var drawHero = function(screenWidth, screenHeight, gfx, heroPosition, heroFrame) {
+    // Draws hero frame to BACKING, FULL-SIZED RENDER GFX
+    var drawHero = function(gfx, heroPosition, heroFrame) {
 	var heroWidth = heroFrame.width;
 	var heroHeight = heroFrame.height;
-	var heroOffsetX = (screenWidth/2) - (heroWidth / 2);
-	var heroOffsetY = (screenHeight/2) - (heroHeight / 2);
-
-	var bgOffsetX = heroPosition.x - (screenWidth/2);
-	var bgOffsetY = heroPosition.y - (screenHeight/2);
+	var heroOffsetX = heroPosition.x - (heroWidth / 2);
+	var heroOffsetY = heroPosition.y - (heroHeight / 2);
 
 	heroOffsetY = heroOffsetY - 8; // aesthetic tweak.
-
-	gfx.drawImage(background, -bgOffsetX, -bgOffsetY);
 	gfx.drawImage(heroes,
 		      heroFrame.left, heroFrame.top,
 		      heroWidth, heroHeight,
 		      heroOffsetX, heroOffsetY,
 		      heroWidth, heroHeight);
+    }
+
+    var drawScreen = function(backCanvas, screenCanvas, heroPosition) {
+	var bgOffsetX = heroPosition.x - (screenCanvas.width / 2);
+	var bgOffsetY = heroPosition.y - (screenCanvas.height / 2);
+
+	var screenGfx = screenCanvas.getContext("2d");
+	screenGfx.drawImage(backCanvas, -bgOffsetX, -bgOffsetY);
     }
 
     ////////////////////////////////////
@@ -202,6 +205,9 @@ $(document).ready(function() {
 						      heroStart03.dy,
 						      32, 32, bounds);
 
+	var renderCanvas = document.createElement('canvas');
+	renderCanvas.width = background.width;
+	renderCanvas.height = background.height;
 
 	var fps_update = Date.now();
 	var frames = 0;
@@ -219,18 +225,16 @@ $(document).ready(function() {
 	    hero02.update(now);
 	    hero03.update(now);
 
-	    var gfx01 = screen01.getContext("2d");
-	    var gfx02 = screen02.getContext("2d");
-	    var gfx03 = screen03.getContext("2d");
+	    var renderGfx = renderCanvas.getContext("2d");
+	    renderGfx.drawImage(background, 0, 0);
 
-	    drawHero(screen01.width, screen01.height, gfx01,
-		     hero01, heroFrames01.SOUTH[0]);
+	    drawHero(renderGfx, hero01, heroFrames01.SOUTH[0]);
+	    drawHero(renderGfx, hero02, heroFrames02.SOUTH[0]);
+	    drawHero(renderGfx, hero03, heroFrames03.SOUTH[0]);
 
-	    drawHero(screen02.width, screen02.height, gfx02,
-		     hero02, heroFrames02.SOUTH[0]);
-
-	    drawHero(screen03.width, screen03.height, gfx03,
-		     hero03, heroFrames03.SOUTH[0]);
+	    drawScreen(renderCanvas, screen01, hero01);
+	    drawScreen(renderCanvas, screen02, hero02);
+	    drawScreen(renderCanvas, screen03, hero03);
 
 	    requestAnimFrame(animate);
 	};

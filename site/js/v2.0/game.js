@@ -46,10 +46,15 @@ window.level = (function() {
 	    var destX = Math.floor(this.x + moveX);
 	    var destY = Math.floor(this.y + moveY);
 
-	    var destIsClear = this.bounds.checkClear( destX - Math.floor(this.width / 2),
-						      destY - Math.floor(this.height / 2),
-						      this.width,
-						      this.height)
+
+	    var halfWidth = Math.floor(this.width / 2);
+	    var halfHeight = Math.floor(this.height / 2);
+
+	    // we fudge the bounds rectangle by 1 px to allow for tight squeezes.
+	    var destIsClear = this.bounds.checkClear( destX - halfWidth  + 1,
+						      destY - halfHeight + 1,
+						      this.width - 2,
+						      this.height - 2)
 	    if (destIsClear) {
 		this.x = destX;
 		this.y = destY;
