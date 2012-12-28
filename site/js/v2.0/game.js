@@ -16,11 +16,19 @@ window.level = (function() {
 	this.y = startY;
 	this.dx = startDx;
 	this.dy = startDy;
+	this.movedDx = 0;
+	this.movedDy = 0;
 	this.width = width;
 	this.height = height;
 	this.bounds = bounds;
 	this.lastTime = -1;
     };
+
+    PlayerCharacter.WALK_NORTH = 'WALK_NORTH';
+    PlayerCharacter.WALK_SOUTH = 'WALK_SOUTH';
+    PlayerCharacter.WALK_EAST = 'WALK_EAST';
+    PlayerCharacter.WALK_WEST = 'WALK_WEST';
+    PlayerCharacter.REST = 'REST';
 
     PlayerCharacter.prototype = {
 
@@ -58,6 +66,8 @@ window.level = (function() {
 	    if (destIsClear) {
 		this.x = destX;
 		this.y = destY;
+		this.movedDx = moveX;
+		this.movedDy = moveY;
 	    }
 	    else {
 		this.whenBlocked();
@@ -75,6 +85,24 @@ window.level = (function() {
 		this.dx = - this.dy;
 		this.dy = oldDx;
 	    }
+	},
+
+	orientation: function() {
+	    if (this.movedDy > 0) {
+		return PlayerCharacter.WALK_SOUTH;
+	    }
+	    else if (this.movedDy < 0) {
+		return PlayerCharacter.WALK_NORTH;
+	    }
+	    else if (this.movedDx > 0) {
+		return PlayerCharacter.WALK_EAST;
+	    }
+	    else if (this.movedDx < 0) {
+		return PlayerCharacter.WALK_WEST;
+	    }
+	    else {
+		return PlayerCharacter.REST; // Default at rest
+	    }		
 	}
     };
 

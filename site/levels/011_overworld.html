@@ -85,6 +85,13 @@ $(document).ready(function() {
             };
     })();//polyfill
 
+    var orientationToFrames = {};
+    orientationToFrames[window.level.PlayerCharacter.WALK_NORTH] = 'WALK_NORTH';
+    orientationToFrames[window.level.PlayerCharacter.WALK_SOUTH] = 'WALK_SOUTH';
+    orientationToFrames[window.level.PlayerCharacter.WALK_EAST] = 'WALK_EAST';
+    orientationToFrames[window.level.PlayerCharacter.WALK_WEST] = 'WALK_WEST';
+    orientationToFrames[window.level.PlayerCharacter.REST] = 'SOUTH';
+
     var heroFrames01 = {
 	NORTH: [ { top: 0, left: 32 * 1, width: 32, height: 32 } ],
 	WALK_NORTH: [ { top: 0, left: 32 * 5, width: 32, height: 32 },
@@ -92,11 +99,11 @@ $(document).ready(function() {
 	SOUTH: [ { top: 0, left: 0, width: 32, height: 32 } ],
 	WALK_SOUTH: [ { top: 0, left: 32 * 3, width: 32, height: 32 },
 		      { top: 0, left: 32 * 4, width: 32, height: 32 } ],
-	EAST: [ { top: 0, left: 32 * 2, width: 32, height: 32 } ],
-	WALK_EAST: [ { top: 0, left: 32 * 8, width: 32, height: 32 },
+	WEST: [ { top: 0, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 0, left: 32 * 8, width: 32, height: 32 },
 		     { top: 0, left: 32 * 7, width: 32, height: 32 } ],
-	WEST: [ { top: 0, left: 32 * 10, width: 32, height: 32 } ],
-	WALK_WEST: [ { top: 0, left: 32 * 9, width: 32, height: 32 },
+	EAST: [ { top: 0, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 0, left: 32 * 9, width: 32, height: 32 },
 		     { top: 0, left: 32 * 10, width: 32, height: 32 } ]
     };
 
@@ -107,11 +114,11 @@ $(document).ready(function() {
 	SOUTH: [ { top: 32, left: 0, width: 32, height: 32 } ],
 	WALK_SOUTH: [ { top: 32, left: 32 * 3, width: 32, height: 32 },
 		      { top: 32, left: 32 * 4, width: 32, height: 32 } ],
-	EAST: [ { top: 32, left: 32 * 2, width: 32, height: 32 } ],
-	WALK_EAST: [ { top: 32, left: 32 * 8, width: 32, height: 32 },
+	WEST: [ { top: 32, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 32, left: 32 * 8, width: 32, height: 32 },
 		     { top: 32, left: 32 * 7, width: 32, height: 32 } ],
-	WEST: [ { top: 32, left: 32 * 10, width: 32, height: 32 } ],
-	WALK_WEST: [ { top: 32, left: 32 * 9, width: 32, height: 32 },
+	EAST: [ { top: 32, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 32, left: 32 * 9, width: 32, height: 32 },
 		     { top: 32, left: 32 * 10, width: 32, height: 32 } ]
     };
 
@@ -122,11 +129,11 @@ $(document).ready(function() {
 	SOUTH: [ { top: 64, left: 0, width: 32, height: 32 } ],
 	WALK_SOUTH: [ { top: 64, left: 32 * 3, width: 32, height: 32 },
 		      { top: 64, left: 32 * 4, width: 32, height: 32 } ],
-	EAST: [ { top: 64, left: 32 * 2, width: 32, height: 32 } ],
-	WALK_EAST: [ { top: 64, left: 32 * 8, width: 32, height: 32 },
+	WEST: [ { top: 64, left: 32 * 2, width: 32, height: 32 } ],
+	WALK_WEST: [ { top: 64, left: 32 * 8, width: 32, height: 32 },
 		     { top: 64, left: 32 * 7, width: 32, height: 32 } ],
-	WEST: [ { top: 64, left: 32 * 10, width: 32, height: 32 } ],
-	WALK_WEST: [ { top: 64, left: 32 * 9, width: 32, height: 32 },
+	EAST: [ { top: 64, left: 32 * 10, width: 32, height: 32 } ],
+	WALK_EAST: [ { top: 64, left: 32 * 9, width: 32, height: 32 },
 		     { top: 64, left: 32 * 10, width: 32, height: 32 } ]
     };
 
@@ -225,12 +232,16 @@ $(document).ready(function() {
 	    hero02.update(now);
 	    hero03.update(now);
 
+	    var hero01Frame = heroFrames01[ orientationToFrames[ hero01.orientation() ] ][0];
+	    var hero02Frame = heroFrames02[ orientationToFrames[ hero02.orientation() ] ][0];
+	    var hero03Frame = heroFrames03[ orientationToFrames[ hero03.orientation() ] ][0];
+
 	    var renderGfx = renderCanvas.getContext("2d");
 	    renderGfx.drawImage(background, 0, 0);
 
-	    drawHero(renderGfx, hero01, heroFrames01.SOUTH[0]);
-	    drawHero(renderGfx, hero02, heroFrames02.SOUTH[0]);
-	    drawHero(renderGfx, hero03, heroFrames03.SOUTH[0]);
+	    drawHero(renderGfx, hero01, hero01Frame);
+	    drawHero(renderGfx, hero02, hero02Frame);
+	    drawHero(renderGfx, hero03, hero03Frame);
 
 	    drawScreen(renderCanvas, screen01, hero01);
 	    drawScreen(renderCanvas, screen02, hero02);
