@@ -19,7 +19,7 @@ window.overworld.bootstrap = function() {
     stateToFrames[window.level.PlayerCharacter.WALK_EAST] = 'WALK_EAST';
     stateToFrames[window.level.PlayerCharacter.WALK_WEST] = 'WALK_WEST';
     stateToFrames[window.level.PlayerCharacter.REST] = 'SOUTH';
-    stateToFrames[window.level.PlayerCharacter.FIGHTING] = 'SOUTH'; // TODO BETTER ANIMATION
+    stateToFrames[window.level.PlayerCharacter.FIGHTING] = 'FIGHT';
 
     var heroFrames01 = {
 	NORTH: [ { top: 0, left: 32 * 1, width: 32, height: 32 } ],
@@ -33,7 +33,10 @@ window.overworld.bootstrap = function() {
 		     { top: 0, left: 32 * 7, width: 32, height: 32 } ],
 	EAST: [ { top: 0, left: 32 * 10, width: 32, height: 32 } ],
 	WALK_EAST: [ { top: 0, left: 32 * 9, width: 32, height: 32 },
-		     { top: 0, left: 32 * 10, width: 32, height: 32 } ]
+		     { top: 0, left: 32 * 10, width: 32, height: 32 } ],
+	FIGHT: [ { top: 32 * 3, left: 0, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32 * 2, width: 32, height: 32 } ]
     };
 
     var heroFrames02 = {
@@ -48,7 +51,10 @@ window.overworld.bootstrap = function() {
 		     { top: 32, left: 32 * 7, width: 32, height: 32 } ],
 	EAST: [ { top: 32, left: 32 * 10, width: 32, height: 32 } ],
 	WALK_EAST: [ { top: 32, left: 32 * 9, width: 32, height: 32 },
-		     { top: 32, left: 32 * 10, width: 32, height: 32 } ]
+		     { top: 32, left: 32 * 10, width: 32, height: 32 } ],
+	FIGHT: [ { top: 32 * 3, left: 0, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32 * 2, width: 32, height: 32 } ]
     };
 
     var heroFrames03 = {
@@ -63,7 +69,10 @@ window.overworld.bootstrap = function() {
 		     { top: 64, left: 32 * 7, width: 32, height: 32 } ],
 	EAST: [ { top: 64, left: 32 * 10, width: 32, height: 32 } ],
 	WALK_EAST: [ { top: 64, left: 32 * 9, width: 32, height: 32 },
-		     { top: 64, left: 32 * 10, width: 32, height: 32 } ]
+		     { top: 64, left: 32 * 10, width: 32, height: 32 } ],
+	FIGHT: [ { top: 32 * 3, left: 0, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32, width: 32, height: 32 },
+		 { top: 32 * 3, left: 32 * 2, width: 32, height: 32 } ]
     };
 
     var WALK_ANIMATION_SPEED = 8; // PIXELS PER FRAME ANIMATION
@@ -106,19 +115,24 @@ window.overworld.bootstrap = function() {
     };
 
     var ANIMATION_WIDTH_PX = 32; // in PIXELS, not TIME
-    var pickFrame = function(hero, heroFrames) {
+    var STILL_ANIMATION_DURATION = 200 // in MILLIS for TOTAL STILL CYCLE
+    var pickFrame = function(hero, heroFrames, animationTime) {
 	var frameListName = stateToFrames[ hero.state() ];
-	var offsetPx = 0;
-	if ((frameListName == 'WALK_EAST') ||
+	var offset = 0;
+
+	if (frameListName == 'FIGHT') {
+	    offset = (animationTime % STILL_ANIMATION_DURATION) / STILL_ANIMATION_DURATION;
+	}
+	else if ((frameListName == 'WALK_EAST') ||
 	    (frameListName == 'WALK_WEST')) {
-	    offsetPx = hero.x % ANIMATION_WIDTH_PX;
+	    offset = (hero.x % ANIMATION_WIDTH_PX) / ANIMATION_WIDTH_PX;
 	}
 	else {
-	    offsetPx = hero.y % ANIMATION_WIDTH_PX;
+	    offset = (hero.y % ANIMATION_WIDTH_PX) / ANIMATION_WIDTH_PX;
 	}
 
 	var frameList = heroFrames[ frameListName ];
-	var offsetFrame = Math.floor((offsetPx / ANIMATION_WIDTH_PX) * frameList.length);
+	var offsetFrame = Math.floor(offset * frameList.length);
 	return frameList[offsetFrame];
     };
 
@@ -128,6 +142,7 @@ window.overworld.bootstrap = function() {
     var MONSTER_CLASSES = [ 'spacesuit_character',
 			    'astroman_character',
 			    'radarman_character',
+			    'lazerman_character',
 			    'aquanaut_character' ];
 
     var observeBattle = function($battleElement, hero, battle, oldState) {
@@ -245,13 +260,13 @@ window.overworld.bootstrap = function() {
 	    var renderGfx = renderCanvas.getContext("2d");
 	    renderGfx.drawImage(background, 0, 0);
 
-	    var hero01Frame = pickFrame(hero01, heroFrames01);
+	    var hero01Frame = pickFrame(hero01, heroFrames01, now);
 	    drawHero(renderGfx, hero01, hero01Frame);
 
-	    var hero02Frame = pickFrame(hero02, heroFrames02);
+	    var hero02Frame = pickFrame(hero02, heroFrames02, now);
 	    drawHero(renderGfx, hero02, hero02Frame);
 
-	    var hero03Frame = pickFrame(hero03, heroFrames03);
+	    var hero03Frame = pickFrame(hero03, heroFrames03, now);
 	    drawHero(renderGfx, hero03, hero03Frame);
 
 	    if (hero01.state() == window.level.PlayerCharacter.FIGHTING) {
