@@ -127,7 +127,8 @@ window.overworld.bootstrap = function() {
 
     var MONSTER_CLASSES = [ 'spacesuit_character',
 			    'astroman_character',
-			    'radarman_character' ];
+			    'radarman_character',
+			    'aquanaut_character' ];
 
     var observeBattle = function($battleElement, hero, battle, oldState) {
 	var newState = battle.state();
