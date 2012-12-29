@@ -132,17 +132,18 @@ window.overworld.bootstrap = function() {
     var observeBattle = function($battleElement, hero, battle, oldState) {
 	var newState = battle.state();
 
-	if (newState == window.level.Battle.STATE_BEGIN) {
-	    $battleElement.find('.opponent_name').text(battle.opponentName());
-	    $battleElement.find('.dialog').text("GO!");
-
-	    _.each(MONSTER_CLASSES, function(cls) {
-		$battleElement.removeClass(cls);
-	    });
-
+	// Cleanup old
+	if (oldState == window.level.Battle.STATE_BEGIN) {
+	    $battleElement.removeClass('begin_go');
 	    var newClass = MONSTER_CLASSES[ _.random(0, MONSTER_CLASSES.length - 1)  ];
 	    $battleElement.addClass(newClass);
+	}
 
+	// Setup new
+	if (newState == window.level.Battle.STATE_BEGIN) {
+	    $battleElement.addClass('begin_go');
+	    $battleElement.find('.opponent_name').text(battle.opponentName());
+	    $battleElement.find('.dialog').text("GO!");
 	    $battleElement.show();
 	}
 	else if (newState == window.level.Battle.STATE_HERO_TURN) {
@@ -158,6 +159,9 @@ window.overworld.bootstrap = function() {
 	    battle.end();
 	}
 	else if (newState == window.level.Battle.STATE_NO_BATTLE) {
+	    _.each(MONSTER_CLASSES, function(cls) {
+		$battleElement.removeClass(cls);
+	    });
 	    $battleElement.hide();
 	    hero.reset();
 	}
