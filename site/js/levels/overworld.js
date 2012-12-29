@@ -152,7 +152,7 @@ window.overworld.bootstrap = function() {
 	else if (newState == window.level.Battle.STATE_OPPONENT_TURN) {
 	    var name = battle.opponentName();
 	    var blurb = battle.opponentSays();
-	    $battleElement.find('.dialog').text(name + ': ' + blurb);
+	    $battleElement.find('.dialog').text(name.toUpperCase() + ': ' + blurb);
 	}
 	else if (newState == window.level.Battle.STATE_COMPLETE) {
 	    battle.end();
@@ -207,9 +207,9 @@ window.overworld.bootstrap = function() {
 	    observeBattle($battle03, hero03, battle, oldState);
 	};
 
-	var battle01 = new window.level.Battle(observer01);
-	var battle02 = new window.level.Battle(observer02);
-	var battle03 = new window.level.Battle(observer03);
+	var battle01 = new window.level.Battle(observer01, window.data.dialogue.euclid);
+	var battle02 = new window.level.Battle(observer02, window.data.dialogue.soaps);
+	var battle03 = new window.level.Battle(observer03, window.data.dialogue.letterman);
 
 	////////////////////////////////////////////////////
 	

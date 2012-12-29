@@ -4,9 +4,10 @@ window.level = (function() {
 
     //////////////////////////////
 
-    var Battle = function(observer) {
+    var Battle = function(observer, persona) {
 	this._state = Battle.STATE_NO_BATTLE;
 	this._observer = observer;
+	this._persona = persona;
     };
 
     Battle.STATE_NO_BATTLE = "NO BATTLE";
@@ -25,11 +26,11 @@ window.level = (function() {
 	    else {
 		var timePassed = nowTime - this._beginTime;
 
-		if (timePassed > 9000) {
+		if (timePassed > 11000) {
 		    if (this.state() != Battle.STATE_COMPLETE)
 			this._transition(Battle.STATE_COMPLETE);
 		}
-		else if (timePassed > 5000) {
+		else if (timePassed > 6000) {
 		    if (this.state() != Battle.STATE_OPPONENT_TURN)
 			this._transition(Battle.STATE_OPPONENT_TURN);
 		}
@@ -45,10 +46,10 @@ window.level = (function() {
 	var nameIndex = _.random(0, window.data.first_names.length - 1);
 	this._opponentName = window.data.first_names[ nameIndex ];
 
-	var heroSaysIndex = _.random(0, window.data.dialog.soaps.length - 2);
+	var heroSaysIndex = _.random(0, this._persona.length - 2);
 	var opponentSaysIndex = heroSaysIndex + 1;
-	this._heroSays = window.data.dialog.soaps[ heroSaysIndex ];
-	this._opponentSays = window.data.dialog.soaps[ opponentSaysIndex ];
+	this._heroSays = this._persona[ heroSaysIndex ];
+	this._opponentSays = this._persona[ opponentSaysIndex ];
 
 	this._beginTime = -1;
 	this._transition(Battle.STATE_BEGIN);
