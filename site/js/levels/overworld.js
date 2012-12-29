@@ -125,7 +125,9 @@ window.overworld.bootstrap = function() {
     /////////////////////////////////////////
     // Battles are event driven
 
-    var MONSTER_CLASSES = [ 'spacesuit_character', 'astroman_character' ];
+    var MONSTER_CLASSES = [ 'spacesuit_character',
+			    'astroman_character',
+			    'radarman_character' ];
 
     var observeBattle = function($battleElement, hero, battle, oldState) {
 	var newState = battle.state();
