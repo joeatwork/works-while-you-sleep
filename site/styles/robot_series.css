@@ -10,8 +10,9 @@
 }
 
 body {
-    background-color: #F0F0F0;
-    font-family: Helvetica, Arial, sans-serif;
+    background-color: #606060;
+    color: #FFFFFF;
+    font-family: HeaderFont, helvetica, sans-serif;
 }
 
 header, section {
@@ -19,9 +20,45 @@ header, section {
     margin: auto;
 }
 
+header {
+    padding-top: 16px;
+}
+
 h1, h2, h3, h4, header time {
     font-family : 'HeaderFont', helvetica, sans-serif;
     font-size: 16px;
     font-weight: normal;
     text-transform: uppercase;
+}
+
+section.notes {
+    padding-top: 48px;
+    background-image: url('../images/red_green_rule.png');
+    background-position: 0 16px;
+    background-repeat: repeat-x;
+}
+
+.previously-on {
+    padding-bottom: 16px;
+}
+
+.about-area {
+    color: #606060;
+    background-color: #FFFFFF;
+    font-family: Geneva, Arial, sans-serif;
+    padding: 16px;
+    border: 2px solid black;
+}
+
+.about-box {
+    font-size: 12px;
+}
+
+.nav-area {
+    padding-top: 10px;
+    text-transform: uppercase;
+}
+
+.nav-area a {
+    color: #FFFFFF;
 }
