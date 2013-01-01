@@ -22,7 +22,6 @@ window.Terrain = (function() {
 	}
     };
 
-
     Terrain.prototype = {
 	block: function(column, row) {
 	    this.cells[row][column] = true;
@@ -77,6 +76,112 @@ window.Culture = (function() {
 
     return Culture;
 })();
+
+window.Swarm = (function() {
+
+    var TEAM_SIZE = 50; // members per swarm team
+    var WALK_SPEED = 16/500; // PIXELS PER MILLISECOND
+
+    var Swarm = function(terrain) {
+	this.terrain = terrain;
+	this._initMembers();
+    };
+
+    Swarm.prototype = {
+	_initMembers: function() {
+	    this.members = [];
+
+	    _.each( ['white', 'red', 'green' ], function(team) {
+		var teamBuilt = 0;
+		while(teamBuilt < TEAM_SIZE) {
+		    var member = {
+			xTile : _.random(2, 61),
+			yTile : _.random(4, 37),
+
+			// How far we have stepped off of our tile
+			offsetX : 0,
+			offsetY : 0,
+
+			// Size in tiles
+			width : 1,
+			height: 1,
+
+			// Carrying resources?
+			resources: 0,
+			team: team
+		    };
+
+		    if (! this.terrain.isBlocked(member.xTile, member.yTile)) {
+			this.members.push(member);
+			teamBuilt = teamBuilt + 1;
+		    }
+		}
+	    }, this);// each team
+
+	    // Will result in possibly overlapping members in the first go-round,
+	    // which will sort itself out naturally as they move.
+	    _.each(this.members, function(member) {
+		this.terrain.block(member.xTile, member.yTile);
+	    }, this);
+	}, // _initMembers
+
+	getMembers: function() {
+	    return this.members;
+	},
+
+	_moveMembers: function(timeElapsed) {
+	    for (var i=0; i < swarm.length; i++) {
+		var member = swarm[i];
+		// Update offsets
+		if (member.offsetX > 0) {
+		    member.offsetX += WALK_SPEED * timeElapsed;
+		}
+		else if (member.offsetX < 0) {
+		    member.offsetX -= WALK_SPEED * timeElapsed;
+		}
+	
+		if (member.offsetY > 0) {
+		    member.offsetY += WALK_SPEED * timeElapsed;
+		}
+		else if (member.offsetY < 0) {
+		    member.offsetY -= WALK_SPEED * timeElapsed;
+		}
+
+		// Update tiles
+		var newTileX = member.xTile;
+		if (member.offsetX >= TILE_IN_PX)  {
+		    member.offsetX = 0;
+		    newTileX = member.xTile + 1;
+		}
+		else if (member.offsetX <= -TILE_IN_PX) {
+		    member.offsetX = 0;
+		    newTileX = member.xTile - 1;
+		}
+
+		var newTileY = member.yTile;
+		if (member.offsetY >= TILE_IN_PX) {
+		    member.offsetY = 0;
+		    newTileY = member.yTile + 1;
+		}
+		else if (member.offsetY <= -TILE_IN_PX) {
+		    member.offsetY = 0;
+		    newTileY = member.yTile - 1;
+		}
+
+		// Update terrain
+		if ((newTileX != member.xTile) ||
+		    (newTileY != member.yTile)) {
+		    this.terrain.unblock(member.xTile, member.yTile);
+		    member.xTile = newTileX;
+		    member.yTile = newTileY;
+		}
+	    }// for member in swarm
+	} // moveMembers
+    }; // Swarm.prototype
+
+    return Swarm;
+})();
+
 
 window.miracleMile = {};
 window.miracleMile.bootstrap = function() {
@@ -207,6 +312,8 @@ window.miracleMile.bootstrap = function() {
 	IDOL_STAGE_5: { width: 6, height: 2 }
     };
 
+    ////////////////////////////////////////////
+
     var RESOURCES_PER_TREE = 1;
     var initForest = function(tileBounds, count) {
 	var trees = [];
@@ -236,44 +343,9 @@ window.miracleMile.bootstrap = function() {
 	return _.sortBy(trees, 'yTile');
     };
 
-
-    var TEAM_SIZE = 50;
-    var initSwarm = function() {
-	var ret = {};
-
-	_.each( ['white', 'red', 'green' ], function(team) {
-	    ret[team] = [];
-	    while(ret[team].length < TEAM_SIZE) {
-		var member = {
-		    xTile : _.random(2, 61),
-		    yTile : _.random(4, 37),
-		    width : 1,
-		    height: 1,
-		    resources: 0,
-		    team: team
-		};
-
-		if (! terrain.isBlocked(member.xTile, member.yTile)) {
-		    ret[team].push(member);
-		}
-	    }
-	});
-
-	// Will result in possibly overlapping members in the first go-round,
-	// which will sort itself out naturally as they move.
-	_.each( ['white', 'red', 'green' ], function(team) {
-	    _.each(ret[team], function(member) {
-		terrain.block(member.xTile, member.yTile);
-	    });
-	});
-
-	return ret;
-    };
-
     ///////////////////////////////////////
 
-
-    var swarm = initSwarm();
+    var swarm = new window.Swarm(terrain);
 
     var northForest = initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
     var southForest = initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
@@ -297,30 +369,35 @@ window.miracleMile.bootstrap = function() {
     structureSprites.onload = loadManager.addCallback();
     structureSprites.src = 'sprites/structures_industry.png';
 
+    ///////////////////////////////////
+
+    var animate = function() {
+	updateSwarm();
+
+	window.requestAnimFrame(animate);
+    };
+
 
     loadManager.setOnComplete(function() {
 	var renderGfx = screenCanvas.getContext('2d');
 	renderGfx.drawImage(background, 0, 0);
 
-	_.each( [ 'green', 'white', 'red' ], function(color) {
+	_.each(swarm.getMembers(), function(member) {
+	    var color = member.team;
 	    var swarmFrame = swarmSpriteMap[color].SOUTH[0];
 
-	    var spriteOffsetX = swarmFrame.left;
-	    var spriteOffsetY = swarmFrame.top;
 	    var swarmWidth = swarmFrame.width;
 	    var swarmHeight = swarmFrame.height;
 
-	    _.each(swarm[color], function(member) {
-		var memberX = member.xTile * TILE_IN_PX;
-		var memberY = member.yTile * TILE_IN_PX;
+	    var memberX = member.xTile * TILE_IN_PX;
+	    var memberY = member.yTile * TILE_IN_PX;
 
-		renderGfx.drawImage(swarmSprites,
-				    // Source rect
-				    swarmFrame.left, swarmFrame.top, swarmWidth, swarmHeight,
-				    // Dest rect
-				    memberX, memberY, swarmWidth, swarmHeight);
-	    }); // each member
-	}); // each team color
+	    renderGfx.drawImage(swarmSprites,
+				// Source rect
+				swarmFrame.left, swarmFrame.top, swarmWidth, swarmHeight,
+				// Dest rect
+				memberX, memberY, swarmWidth, swarmHeight);
+	}); // each member
 
 	_.each(forest, function(tree) {
 	    var treeTileX = tree.xTile * TILE_IN_PX;
@@ -339,44 +416,41 @@ window.miracleMile.bootstrap = function() {
 	var totalOperations = 0;
 	var totalMembers = 0;
 	var totalMisses = 0;
-	_.each( [ 'green', 'white', 'red' ], function(color) {
-	    _.each(swarm[color], function(member) {
-		var goal = culture.getGoal(member);
+	_.each(swarm.getMembers(), function(member) {
+	    var goal = culture.getGoal(member);
 
-		var memberX = member.xTile * TILE_IN_PX;
-		var memberY = member.yTile * TILE_IN_PX;
+	    var memberX = member.xTile * TILE_IN_PX;
+	    var memberY = member.yTile * TILE_IN_PX;
 
-		var tree = goal.found;
+	    var tree = goal.found;
 
-		if (!tree) {
-		    totalMisses += 1;
-		    renderGfx.strokeStyle = '#000000';
-		    renderGfx.lineWidth = 2;
-		    renderGfx.beginPath();
-		    renderGfx.arc(memberX + (TILE_IN_PX/2), memberY + (TILE_IN_PX/2),
-				  TILE_IN_PX/2,
-				  0,Math.PI*2,true);
-		    renderGfx.stroke();
-		}
-		else {
-		    var treeTileX = tree.xTile * TILE_IN_PX;
-		    var treeTileY = tree.yTile * TILE_IN_PX;
+	    if (!tree) {
+		totalMisses += 1;
+		renderGfx.strokeStyle = '#000000';
+		renderGfx.lineWidth = 2;
+		renderGfx.beginPath();
+		renderGfx.arc(memberX + (TILE_IN_PX/2), memberY + (TILE_IN_PX/2),
+			      TILE_IN_PX/2, 0,Math.PI*2,true);
+		renderGfx.stroke();
+	    }
+	    else {
+		var treeTileX = tree.xTile * TILE_IN_PX;
+		var treeTileY = tree.yTile * TILE_IN_PX;
 
-		    var strokes = [
-			'#ff0000', '#00ff00', '#0000ff' //, '#ffff00', '#00ffff', '#ff00ff'
-		    ];
-		    renderGfx.strokeStyle = strokes[ totalMembers % strokes.length ];
-		    renderGfx.lineWidth = 1;
-		    renderGfx.beginPath();
-		    renderGfx.moveTo(memberX, memberY);
-		    renderGfx.lineTo(treeTileX, treeTileY);
-		    renderGfx.stroke();
-		}
+		var strokes = [
+		    '#ff0000', '#00ff00', '#0000ff' //, '#ffff00', '#00ffff', '#ff00ff'
+		];
+		renderGfx.strokeStyle = strokes[ totalMembers % strokes.length ];
+		renderGfx.lineWidth = 1;
+		renderGfx.beginPath();
+		renderGfx.moveTo(memberX, memberY);
+		renderGfx.lineTo(treeTileX, treeTileY);
+		renderGfx.stroke();
+	    }
 
-		totalOperations += goal.operations;
-		totalMembers += 1;
-	    });// each member
-	}); // each color
+	    totalOperations += goal.operations;
+	    totalMembers += 1;
+	}); // each member
 
 	console.log(totalOperations + " ops for " + totalMembers + " members: ops/member " + (totalOperations + 0.0) / totalMembers + "(Misses: " + totalMisses + ")");
     });
