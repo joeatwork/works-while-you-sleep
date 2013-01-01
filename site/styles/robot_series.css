@@ -20,6 +20,10 @@ header, section {
     margin: auto;
 }
 
+.wide header, .wide section {
+    width: 1024;
+}
+
 header {
     padding-top: 16px;
 }

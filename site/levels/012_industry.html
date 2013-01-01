@@ -1,0 +1,68 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>012 "Miracle Mile" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/robot_series.css">
+  <style>
+    .screen_area {
+        background-color: white;
+        border: 2px solid black;
+    }
+  </style>
+<!-- start Mixpanel --><script type="text/javascript">(function(d,c){var a,b,g,e;a=d.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===d.location.protocol?"https:":"http:")+'//api.mixpanel.com/site_media/js/api/mixpanel.2.js';b=d.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b);c._i=[];c.init=function(a,d,f){var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";g="disable track track_pageview track_links track_forms register register_once unregister identify name_tag set_config".split(" ");
+for(e=0;e<g.length;e++)(function(a){b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,0)))}})(g[e]);c._i.push([a,d,f])};window.mixpanel=c})(document,[]);
+mixpanel.init("8225af3b4eb4e53902e4cd79c242cc60");</script><!-- end Mixpanel -->
+<script>
+// Mixpanel stuff
+mixpanel.track('pageview', { page: 'miracle mile' });
+</script>
+</head>
+<body class="wide">
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 160px;"
+         ><time>2012-01-01</time:></div>
+    <h1>Works While You Sleep 2.2 : Miracle Mile</h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="screen_area"
+       ><canvas width="1024" height="640" id="screen_canvas"
+		></canvas></div>
+</section>
+
+<section class="notes">
+  <div class="about-area">
+    <div class="previously-on">
+      <strong>PREVIOUSLY!</strong>
+      <a href="/yousleep/levels/001_asgard.html">2.1OVERWORLD!</a><br><br>
+      <strong>EVEN PREVIOUSLIER!</strong>
+      <a href="/yousleep/levels/001_asgard.html">1.1ASGARD!</a> /
+      <a href="/yousleep/levels/002_astronaut.html">1.2ASTRONAUT!</a> /
+      <a href="/yousleep/levels/003_automatic.html">1.3AUTOMATIC!</a> /
+      <a href="/yousleep/levels/004_approach.html">1.4APPROACH!</a> /
+      <a href="/yousleep/levels/005_ascend.html">1.5ASCEND!</a>
+    </div>
+
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+    <div style="display:none"
+         >Running at <span id="show_fps">?</span> frames per second</div>
+  </div><!-- .about-area -->
+</section>
+
+<!-- NO MORE CONTENT -->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../lib/underscore-1.4.3.min.js"></script>
+
+<script src="../js/v2.0/chorus.js"></script>
+<script src="../js/levels/industry.js"></script>
+<script>
+$(document).ready(window.miracleMile.bootstrap);
+</script>
+</body>
+</html>
