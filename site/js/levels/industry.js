@@ -10,6 +10,8 @@ window.requestAnimFrame = (function(){
 })();//polyfill
 
 window.Terrain = (function() {
+    'use strict';
+
     var Terrain = function(columns, rows) {
 	this.cells = []
 
@@ -40,6 +42,7 @@ window.Terrain = (function() {
 })();
 
 window.Culture = (function() {
+    'use strict';
 
     var Culture = function(structureDb, maxSearchRadius) {
 	this.structureDb = structureDb;
@@ -67,8 +70,19 @@ window.Culture = (function() {
 		searchRadius = searchRadius * 2;
 	    }
 
+	    // Consider randomly splicing stuff out?
+	    for (var i = 0; i < found.length; i++ ) {
+		var candidate = found[i];
+		if (candidate.resources > 0) { // TODO Color check here
+		    return {
+			found: candidate,
+			operations: operations
+		    }
+		}
+	    }// for
+
 	    return {
-		found : found[ _.random(0, found.length - 1) ],
+		found: undefined,
 		operations: operations
 	    };
 	}
@@ -78,14 +92,17 @@ window.Culture = (function() {
 })();
 
 window.Swarm = (function() {
+    'use strict';
 
     var TEAM_SIZE = 50; // members per swarm team
     var WALK_SPEED = 16/500; // PIXELS PER MILLISECOND
+    var MINING_SPEED = 1/5000; // RESOURCE UNIT PER MILLISECOND
 
-    var NORTH = { offsetX:           0, offsetY: -WALK_SPEED };
-    var EAST  = { offsetX:  WALK_SPEED, offsetY:           0 };
-    var SOUTH = { offsetX:           0, offsetY:  WALK_SPEED };
-    var WEST  = { offsetX: -WALK_SPEED, offsetY:           0 };
+    // Offset in TILES
+    var NORTH = { offsetX:  0, offsetY: -1 };
+    var EAST  = { offsetX:  1, offsetY:  0 };
+    var SOUTH = { offsetX:  0, offsetY:  1 };
+    var WEST  = { offsetX: -1, offsetY:  0 };
 
     var Swarm = function(terrain, culture, walkDistance) {
 	this.terrain = terrain;
@@ -101,7 +118,7 @@ window.Swarm = (function() {
 
 	update: function(timeElapsedMillis) {
 	    this._moveMembers(timeElapsedMillis);
-	    this._updateGoals();
+	    this._updateGoals(timeElapsedMillis);
 	},
 
 	////////////////////////////////////
@@ -192,7 +209,7 @@ window.Swarm = (function() {
 	    }// for member in swarm
 	}, // moveMembers
 
-	_updateGoals: function() {
+	_updateGoals: function(timeElapsedMillis) {
 	    for (var i=0; i < this.members.length; i++) {
 		var member = this.members[i];
 		if (member.offsetX || member.offsetY) continue;
@@ -203,7 +220,14 @@ window.Swarm = (function() {
 		    var distanceX = goal.found.xTile - member.xTile;
 		    var distanceY = goal.found.yTile - member.yTile;
 
-		    if ((distanceY > 0) &&
+		    if (((Math.abs(distanceX) <= 1) && (Math.abs(distanceY) <= 0)) ||
+			((Math.abs(distanceX) <= 0) && (Math.abs(distanceY) <= 1))) {
+			var transfer = Math.min(MINING_SPEED * timeElapsedMillis,
+						goal.found.resources);
+			goal.found.resources -= transfer;
+			member.resources += transfer;
+		    }
+		    else if ((distanceY > 0) &&
 			(! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
 			move = SOUTH;
 		    }
@@ -220,27 +244,23 @@ window.Swarm = (function() {
 			move = WEST;
 		    }
 		}
-		
-		if (! move) { // No goal found, just go someplace
-		    if (! this.terrain.isBlocked(member.xTile, member.yTile + 1)) {
-			move = NORTH;
-		    }
-		    else if (! this.terrain.isBlocked(member.xTile, member.yTile - 1)) {
-			move = SOUTH;
-		    }
-		    else if (! this.terrain.isBlocked(member.xTile + 1, member.yTile)) {
-			move = EAST;
-		    }
-		    else if (! this.terrain.isBlocked(member.xTile - 1, member.yTile)) {
-			move = WEST;
-		    }
+		else {
+		    var checkOrder = _.shuffle([ NORTH, SOUTH, EAST, WEST ]);
+
+		    move = _.find(checkOrder, function(move) {
+			var moveX = member.xTile + move.offsetX;
+			var moveY = member.yTile + move.offsetY;
+			return (! this.terrain.isBlocked(moveX, moveY));
+		    }, this);
 		}// if no goal move
 
 		//////////////////////////////////////
 
 		if (move) {
-		    member.offsetX = move.offsetX;
-		    member.offsetY = move.offsetY;
+		    member.offsetX = move.offsetX * WALK_SPEED;
+		    member.offsetY = move.offsetY * WALK_SPEED;
+		    this.terrain.block(member.xTile + move.offsetX,
+				       member.yTile + move.offsetY);
 		}
 
 	    } // for member in swarm
@@ -368,22 +388,50 @@ window.miracleMile.bootstrap = function() {
     //////////////////////////////////////////
 
     var structureFootprints = {
-	TREE: { width: 1, height: 1 },
-	SMALL_TOWER: { width: 2, height: 1},
-	MID_TOWER: { width: 2, height: 1},
-	TALL_TOWER: { width: 2, height: 1},
-	TALLEST_TOWER: { width: 2, height: 1},
+	TREE: { width: 1, height: 1, resources: 1 },
+	SMALL_TOWER: { width: 2, height: 1, resources: 3 },
+	MID_TOWER: { width: 2, height: 1, resources: 6 },
+	TALL_TOWER: { width: 2, height: 1, resources: 9 },
+	TALLEST_TOWER: { width: 2, height: 1, resources: 12 },
 
-	IDOL_STAGE_1: { width: 6, height: 2 },
-	IDOL_STAGE_2: { width: 6, height: 2 },
-	IDOL_STAGE_3: { width: 6, height: 2 },
-	IDOL_STAGE_4: { width: 6, height: 2 },
-	IDOL_STAGE_5: { width: 6, height: 2 }
+	IDOL_STAGE_1: { width: 6, height: 2, resources:  5 },
+	IDOL_STAGE_2: { width: 6, height: 2, resources: 10 },
+	IDOL_STAGE_3: { width: 6, height: 2, resources: 15 },
+	IDOL_STAGE_4: { width: 6, height: 2, resources: 20 },
+	IDOL_STAGE_5: { width: 6, height: 2, resources: 25 } // TOO EXPENSIVE!
     };
 
     ////////////////////////////////////////////
 
-    var RESOURCES_PER_TREE = 1;
+    var disposeStructure = function(structure) {
+	structureDb.remove(structure.dbHandle);
+
+	var xrange = _.range(structure.xTile, structure.xTile + structure.width);
+	var yrange = _.range(structure.yTile, structure.yTile + structure.height);
+
+	_.each(xrange, function(xCoord) {
+	    _.each(yrange, function(yCoord) {
+		terrain.clear(xCoord, yCoord);
+	    });
+	});
+    };
+
+    var plantStructure = function(structure) {
+	structure.dbHandle =
+	    structureDb.add(structure,
+			    structure.xTile, structure.xTile + structure.width,
+			    structure.yTile, structure.yTile + structure.height);
+
+	var xrange = _.range(structure.xTile, structure.xTile + structure.width);
+	var yrange = _.range(structure.yTile, structure.yTile + structure.height);
+
+	_.each(xrange, function(xCoord) {
+	    _.each(yrange, function(yCoord) {
+		terrain.block(xCoord, yCoord);
+	    });
+	});
+    };
+
     var initForest = function(tileBounds, count) {
 	var trees = [];
 	var treeWidth = structureFootprints.TREE.width;
@@ -395,21 +443,33 @@ window.miracleMile.bootstrap = function() {
 				tileBounds.left + tileBounds.width),
 		yTile: _.random(tileBounds.top,
 				tileBounds.top + tileBounds.height),
-		resources: RESOURCES_PER_TREE,
+		resources: structureFootprints.TREE.resources,
+		width: structureFootprints.TREE.width,
+		height: structureFootprints.TREE.height,
 		team: null
 	    };
 
 	    if (!terrain.isBlocked(newTree.xTile, newTree.yTile)) {
-		newTree.dbHandle =
-		    structureDb.add(newTree,
-				    newTree.xTile, newTree.xTile + treeWidth,
-				    newTree.yTile, newTree.yTile + treeHeight);
-		terrain.block(newTree.xTile, newTree.yTile);
+		plantStructure(newTree);
 		trees.push(newTree);
 	    }
 	}
 
 	return _.sortBy(trees, 'yTile');
+    };
+
+    var drawTerrain = function() {
+	_.times(TERRAIN_COLS, function(col_ix) {
+	    _.times(TERRAIN_ROWS, function(row_ix) {
+		var treeTileX = col_ix * TILE_IN_PX;
+		var treeTileY = row_ix * TILE_IN_PX;
+
+		renderGfx.fillStyle = "rgb(200,0,0)";
+		if (terrain.isBlocked(col_ix, row_ix)) {
+		    renderGfx.fillRect(treeTileX, treeTileY, TILE_IN_PX, TILE_IN_PX);
+		}
+	    });
+	});
     };
 
     ///////////////////////////////////////
@@ -473,6 +533,13 @@ window.miracleMile.bootstrap = function() {
 				memberX, memberY, swarmWidth, swarmHeight);
 	}); // each member
 
+	var livingAndDead = _.groupBy(forest, function(tree) {
+	    return (tree.resources > 0) ? 'living' : 'dead';
+	});
+
+	_.each(livingAndDead.dead, disposeStructure);
+
+	forest = livingAndDead.living;
 	_.each(forest, function(tree) {
 	    var treeTileX = tree.xTile * TILE_IN_PX;
 	    var treeTileY = tree.yTile * TILE_IN_PX;
@@ -487,12 +554,12 @@ window.miracleMile.bootstrap = function() {
 				structureSpriteMap.TREE.width, structureSpriteMap.TREE.height);
 	}); // each tree
 
+	// drawTerrain();
+
 	window.requestAnimFrame(animate);
     };
 
-
     loadManager.setOnComplete(function() {
-
 	window.requestAnimFrame(animate);
     });
 
