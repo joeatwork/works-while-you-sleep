@@ -454,54 +454,6 @@ window.miracleMile.bootstrap = function() {
 
 	swarm.update(timeDelta);
 
-	var totalOperations = 0;
-	var totalMembers = 0;
-	var totalMisses = 0;
-	_.each(swarm.getMembers(), function(member) {
-	    var goal = culture.getGoal(member);
-
-	    var memberX = (member.xTile * TILE_IN_PX) + member.offsetX;
-	    var memberY = (member.yTile * TILE_IN_PX) + member.offsetY;
-
-	    var tree = goal.found;
-
-	    if (!tree) {
-		totalMisses += 1;
-		renderGfx.strokeStyle = '#000000';
-		renderGfx.lineWidth = 2;
-		renderGfx.beginPath();
-		renderGfx.arc(memberX + (TILE_IN_PX/2), memberY + (TILE_IN_PX/2),
-			      TILE_IN_PX/2, 0,Math.PI*2,true);
-		renderGfx.stroke();
-	    }
-	    else {
-		var treeTileX = tree.xTile * TILE_IN_PX;
-		var treeTileY = tree.yTile * TILE_IN_PX;
-
-		var strokes = [
-		    '#ff0000', '#00ff00', '#0000ff' //, '#ffff00', '#00ffff', '#ff00ff'
-		];
-		renderGfx.strokeStyle = strokes[ totalMembers % strokes.length ];
-		renderGfx.lineWidth = 1;
-		renderGfx.beginPath();
-		renderGfx.moveTo(memberX, memberY);
-		renderGfx.lineTo(treeTileX, treeTileY);
-		renderGfx.stroke();
-	    }
-
-	    totalOperations += goal.operations;
-	    totalMembers += 1;
-	}); // each member
-
-	console.log(totalOperations + " ops for " + totalMembers +
-		    " members: ops/member " + (totalOperations + 0.0) / totalMembers +
-		    "(Misses: " + totalMisses + ")");
-
-	window.requestAnimFrame(animate);
-    };
-
-
-    loadManager.setOnComplete(function() {
 	renderGfx.drawImage(background, 0, 0);
 
 	_.each(swarm.getMembers(), function(member) {
@@ -511,8 +463,8 @@ window.miracleMile.bootstrap = function() {
 	    var swarmWidth = swarmFrame.width;
 	    var swarmHeight = swarmFrame.height;
 
-	    var memberX = member.xTile * TILE_IN_PX;
-	    var memberY = member.yTile * TILE_IN_PX;
+	    var memberX = (member.xTile * TILE_IN_PX) + member.offsetX;
+	    var memberY = (member.yTile * TILE_IN_PX) + member.offsetY;
 
 	    renderGfx.drawImage(swarmSprites,
 				// Source rect
@@ -534,6 +486,12 @@ window.miracleMile.bootstrap = function() {
 				treeDrawX, treeDrawY,
 				structureSpriteMap.TREE.width, structureSpriteMap.TREE.height);
 	}); // each tree
+
+	window.requestAnimFrame(animate);
+    };
+
+
+    loadManager.setOnComplete(function() {
 
 	window.requestAnimFrame(animate);
     });
