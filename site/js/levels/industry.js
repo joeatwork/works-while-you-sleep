@@ -99,6 +99,7 @@ window.Swarm = (function() {
     var MINING_SPEED = 1/5000; // RESOURCE UNIT PER MILLISECOND
 
     // Offset in TILES
+    var STAND_STILL = { offsetX:  0, offsetY: 0 };
     var NORTH = { offsetX:  0, offsetY: -1 };
     var EAST  = { offsetX:  1, offsetY:  0 };
     var SOUTH = { offsetX:  0, offsetY:  1 };
@@ -226,6 +227,7 @@ window.Swarm = (function() {
 						goal.found.resources);
 			goal.found.resources -= transfer;
 			member.resources += transfer;
+			move = STAND_STILL;
 		    }
 		    else if ((distanceY > 0) &&
 			(! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
@@ -244,7 +246,8 @@ window.Swarm = (function() {
 			move = WEST;
 		    }
 		}
-		else {
+
+		if (! move) {
 		    var checkOrder = _.shuffle([ NORTH, SOUTH, EAST, WEST ]);
 
 		    move = _.find(checkOrder, function(move) {
