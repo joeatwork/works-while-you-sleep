@@ -82,12 +82,30 @@ window.Swarm = (function() {
     var TEAM_SIZE = 50; // members per swarm team
     var WALK_SPEED = 16/500; // PIXELS PER MILLISECOND
 
-    var Swarm = function(terrain) {
+    var NORTH = { offsetX:           0, offsetY: -WALK_SPEED };
+    var EAST  = { offsetX:  WALK_SPEED, offsetY:           0 };
+    var SOUTH = { offsetX:           0, offsetY:  WALK_SPEED };
+    var WEST  = { offsetX: -WALK_SPEED, offsetY:           0 };
+
+    var Swarm = function(terrain, culture, walkDistance) {
 	this.terrain = terrain;
+	this.culture = culture;
+	this.walkDistance = walkDistance;
 	this._initMembers();
     };
 
     Swarm.prototype = {
+	getMembers: function() {
+	    return this.members;
+	},
+
+	update: function(timeElapsedMillis) {
+	    this._moveMembers(timeElapsedMillis);
+	    this._updateGoals();
+	},
+
+	////////////////////////////////////
+
 	_initMembers: function() {
 	    this.members = [];
 
@@ -125,13 +143,9 @@ window.Swarm = (function() {
 	    }, this);
 	}, // _initMembers
 
-	getMembers: function() {
-	    return this.members;
-	},
-
 	_moveMembers: function(timeElapsed) {
-	    for (var i=0; i < swarm.length; i++) {
-		var member = swarm[i];
+	    for (var i=0; i < this.members.length; i++) {
+		var member = this.members[i];
 		// Update offsets
 		if (member.offsetX > 0) {
 		    member.offsetX += WALK_SPEED * timeElapsed;
@@ -149,21 +163,21 @@ window.Swarm = (function() {
 
 		// Update tiles
 		var newTileX = member.xTile;
-		if (member.offsetX >= TILE_IN_PX)  {
+		if (member.offsetX >= this.walkDistance)  {
 		    member.offsetX = 0;
 		    newTileX = member.xTile + 1;
 		}
-		else if (member.offsetX <= -TILE_IN_PX) {
+		else if (member.offsetX <= -this.walkDistance) {
 		    member.offsetX = 0;
 		    newTileX = member.xTile - 1;
 		}
 
 		var newTileY = member.yTile;
-		if (member.offsetY >= TILE_IN_PX) {
+		if (member.offsetY >= this.walkDistance) {
 		    member.offsetY = 0;
 		    newTileY = member.yTile + 1;
 		}
-		else if (member.offsetY <= -TILE_IN_PX) {
+		else if (member.offsetY <= -this.walkDistance) {
 		    member.offsetY = 0;
 		    newTileY = member.yTile - 1;
 		}
@@ -171,12 +185,66 @@ window.Swarm = (function() {
 		// Update terrain
 		if ((newTileX != member.xTile) ||
 		    (newTileY != member.yTile)) {
-		    this.terrain.unblock(member.xTile, member.yTile);
+		    this.terrain.clear(member.xTile, member.yTile);
 		    member.xTile = newTileX;
 		    member.yTile = newTileY;
 		}
 	    }// for member in swarm
-	} // moveMembers
+	}, // moveMembers
+
+	_updateGoals: function() {
+	    for (var i=0; i < this.members.length; i++) {
+		var member = this.members[i];
+		if (member.offsetX || member.offsetY) continue;
+
+		var move = false;
+		var goal = this.culture.getGoal(member);
+		if (goal.found) {
+		    var distanceX = goal.found.xTile - member.xTile;
+		    var distanceY = goal.found.yTile - member.yTile;
+
+		    if ((distanceY > 0) &&
+			(! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
+			move = SOUTH;
+		    }
+		    else if ((distanceY < 0) &&
+			     (! this.terrain.isBlocked(member.xTile, member.yTile - 1))) {
+			move = NORTH;
+		    }
+		    else if ((distanceX > 0) &&
+			     (! this.terrain.isBlocked(member.xTile + 1, member.yTile))) {
+			move = EAST;
+		    }
+		    else if ((distanceX < 0) &&
+			     (! this.terrain.isBlocked(member.xTile - 1, member.yTile))) {
+			move = WEST;
+		    }
+		}
+		
+		if (! move) { // No goal found, just go someplace
+		    if (! this.terrain.isBlocked(member.xTile, member.yTile + 1)) {
+			move = NORTH;
+		    }
+		    else if (! this.terrain.isBlocked(member.xTile, member.yTile - 1)) {
+			move = SOUTH;
+		    }
+		    else if (! this.terrain.isBlocked(member.xTile + 1, member.yTile)) {
+			move = EAST;
+		    }
+		    else if (! this.terrain.isBlocked(member.xTile - 1, member.yTile)) {
+			move = WEST;
+		    }
+		}// if no goal move
+
+		//////////////////////////////////////
+
+		if (move) {
+		    member.offsetX = move.offsetX;
+		    member.offsetY = move.offsetY;
+		}
+
+	    } // for member in swarm
+	} // updateGoals
     }; // Swarm.prototype
 
     return Swarm;
@@ -188,6 +256,7 @@ window.miracleMile.bootstrap = function() {
     'use strict';
 
     var screenCanvas = $('#screen_canvas')[0];
+    var renderGfx = screenCanvas.getContext('2d');
 
     var structureSpriteMap = {
 	TREE: {
@@ -345,7 +414,7 @@ window.miracleMile.bootstrap = function() {
 
     ///////////////////////////////////////
 
-    var swarm = new window.Swarm(terrain);
+    var swarm = new window.Swarm(terrain, culture, TILE_IN_PX);
 
     var northForest = initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
     var southForest = initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
@@ -371,15 +440,68 @@ window.miracleMile.bootstrap = function() {
 
     ///////////////////////////////////
 
+    var lastTime = false;
     var animate = function() {
-	updateSwarm();
+	if (! lastTime) {
+	    lastTime = Date.now();
+	    window.requestAnimFrame(animate);
+	    return;
+	}
+	// ELSE
+	var now = Date.now();
+	var timeDelta = now - lastTime;
+	lastTime = now;
+
+	swarm.update(timeDelta);
+
+	var totalOperations = 0;
+	var totalMembers = 0;
+	var totalMisses = 0;
+	_.each(swarm.getMembers(), function(member) {
+	    var goal = culture.getGoal(member);
+
+	    var memberX = (member.xTile * TILE_IN_PX) + member.offsetX;
+	    var memberY = (member.yTile * TILE_IN_PX) + member.offsetY;
+
+	    var tree = goal.found;
+
+	    if (!tree) {
+		totalMisses += 1;
+		renderGfx.strokeStyle = '#000000';
+		renderGfx.lineWidth = 2;
+		renderGfx.beginPath();
+		renderGfx.arc(memberX + (TILE_IN_PX/2), memberY + (TILE_IN_PX/2),
+			      TILE_IN_PX/2, 0,Math.PI*2,true);
+		renderGfx.stroke();
+	    }
+	    else {
+		var treeTileX = tree.xTile * TILE_IN_PX;
+		var treeTileY = tree.yTile * TILE_IN_PX;
+
+		var strokes = [
+		    '#ff0000', '#00ff00', '#0000ff' //, '#ffff00', '#00ffff', '#ff00ff'
+		];
+		renderGfx.strokeStyle = strokes[ totalMembers % strokes.length ];
+		renderGfx.lineWidth = 1;
+		renderGfx.beginPath();
+		renderGfx.moveTo(memberX, memberY);
+		renderGfx.lineTo(treeTileX, treeTileY);
+		renderGfx.stroke();
+	    }
+
+	    totalOperations += goal.operations;
+	    totalMembers += 1;
+	}); // each member
+
+	console.log(totalOperations + " ops for " + totalMembers +
+		    " members: ops/member " + (totalOperations + 0.0) / totalMembers +
+		    "(Misses: " + totalMisses + ")");
 
 	window.requestAnimFrame(animate);
     };
 
 
     loadManager.setOnComplete(function() {
-	var renderGfx = screenCanvas.getContext('2d');
 	renderGfx.drawImage(background, 0, 0);
 
 	_.each(swarm.getMembers(), function(member) {
@@ -413,46 +535,7 @@ window.miracleMile.bootstrap = function() {
 				structureSpriteMap.TREE.width, structureSpriteMap.TREE.height);
 	}); // each tree
 
-	var totalOperations = 0;
-	var totalMembers = 0;
-	var totalMisses = 0;
-	_.each(swarm.getMembers(), function(member) {
-	    var goal = culture.getGoal(member);
-
-	    var memberX = member.xTile * TILE_IN_PX;
-	    var memberY = member.yTile * TILE_IN_PX;
-
-	    var tree = goal.found;
-
-	    if (!tree) {
-		totalMisses += 1;
-		renderGfx.strokeStyle = '#000000';
-		renderGfx.lineWidth = 2;
-		renderGfx.beginPath();
-		renderGfx.arc(memberX + (TILE_IN_PX/2), memberY + (TILE_IN_PX/2),
-			      TILE_IN_PX/2, 0,Math.PI*2,true);
-		renderGfx.stroke();
-	    }
-	    else {
-		var treeTileX = tree.xTile * TILE_IN_PX;
-		var treeTileY = tree.yTile * TILE_IN_PX;
-
-		var strokes = [
-		    '#ff0000', '#00ff00', '#0000ff' //, '#ffff00', '#00ffff', '#ff00ff'
-		];
-		renderGfx.strokeStyle = strokes[ totalMembers % strokes.length ];
-		renderGfx.lineWidth = 1;
-		renderGfx.beginPath();
-		renderGfx.moveTo(memberX, memberY);
-		renderGfx.lineTo(treeTileX, treeTileY);
-		renderGfx.stroke();
-	    }
-
-	    totalOperations += goal.operations;
-	    totalMembers += 1;
-	}); // each member
-
-	console.log(totalOperations + " ops for " + totalMembers + " members: ops/member " + (totalOperations + 0.0) / totalMembers + "(Misses: " + totalMisses + ")");
+	window.requestAnimFrame(animate);
     });
 
     loadManager.arm()
