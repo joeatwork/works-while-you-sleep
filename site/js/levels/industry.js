@@ -14,6 +14,8 @@ window.Terrain = (function() {
 
     var Terrain = function(columns, rows) {
 	this.cells = []
+	this.columns = columns;
+	this.rows = rows;
 
 	// In this world, things occupy 16 x 16 spaces in a grid.
 	for (var row = 0; row < rows; row++) {
@@ -35,17 +37,71 @@ window.Terrain = (function() {
 
 	isBlocked: function(column, row) {
 	    return this.cells[row][column];
-	}
+	},
+
+	width: function() { return this.columns; },
+	height: function() { return this.rows; }
     };
 
     return Terrain;
 })();
 
+window.Structures = (function() {
+    'use strict';
+    var Structures = function(terrain) {
+	this.terrain = terrain;
+	this.structureDb = window.SpaceManager.treeSpace(0, terrain.width,
+							 0, terrain.height);
+    };
+
+    Structures.prototype = {
+	findInRect: function(searchLeft, searchRight,
+			     searchTop, searchBottom) {
+	    return this.structureDb.find(searchLeft, searchRight,
+					 searchTop, searchBottom);
+	},
+
+
+	disposeStructure: function(structure) {
+	    var self = this;
+	    self.structureDb.remove(structure.dbHandle);
+
+	    var xrange = _.range(structure.xTile, structure.xTile + structure.width);
+	    var yrange = _.range(structure.yTile, structure.yTile + structure.height);
+
+	    _.each(xrange, function(xCoord) {
+		_.each(yrange, function(yCoord) {
+		    self.terrain.clear(xCoord, yCoord);
+		});
+	    });
+	},
+
+	plantStructure: function(structure) {
+	    var self = this;
+	    structure.dbHandle =
+		self.structureDb.add(structure,
+				     structure.xTile, structure.xTile + structure.width,
+				     structure.yTile, structure.yTile + structure.height);
+
+	    var xrange = _.range(structure.xTile, structure.xTile + structure.width);
+	    var yrange = _.range(structure.yTile, structure.yTile + structure.height);
+
+	    _.each(xrange, function(xCoord) {
+		_.each(yrange, function(yCoord) {
+		    self.terrain.block(xCoord, yCoord);
+		});
+	    });
+	}
+    };
+
+    return Structures;
+})();
+
 window.Culture = (function() {
     'use strict';
 
-    var Culture = function(structureDb, maxSearchRadius) {
-	this.structureDb = structureDb;
+    var Culture = function(structures, maxSearchRadius) {
+	this.structures = structures;
 	this.startRadius = 1;
 	this.maxSearchRadius = maxSearchRadius;
     };
@@ -63,8 +119,8 @@ window.Culture = (function() {
 		var searchTop = member.yTile - searchRadius;
 		var searchBottom = member.yTile + member.height + searchRadius;
 
-		var found = this.structureDb.find(searchLeft, searchRight,
-						  searchTop, searchBottom);
+		var found = this.structures.findInRect(searchLeft, searchRight,
+						       searchTop, searchBottom);
 
 		operations = operations + found.findOperations;
 		searchRadius = searchRadius * 2;
@@ -85,7 +141,7 @@ window.Culture = (function() {
 		found: undefined,
 		operations: operations
 	    };
-	}
+	}	
     };
 
     return Culture;
@@ -384,8 +440,8 @@ window.miracleMile.bootstrap = function() {
     
     /////////////////////////////////////////
 
-    var structureDb = window.SpaceManager.treeSpace(0, TERRAIN_COLS, 0, TERRAIN_ROWS);
-    var culture = new window.Culture(structureDb,
+    var structures = new window.Structures(terrain);
+    var culture = new window.Culture(structures,
 				     Math.min(TERRAIN_COLS/2, TERRAIN_ROWS/2));
 
     //////////////////////////////////////////
@@ -406,35 +462,6 @@ window.miracleMile.bootstrap = function() {
 
     ////////////////////////////////////////////
 
-    var disposeStructure = function(structure) {
-	structureDb.remove(structure.dbHandle);
-
-	var xrange = _.range(structure.xTile, structure.xTile + structure.width);
-	var yrange = _.range(structure.yTile, structure.yTile + structure.height);
-
-	_.each(xrange, function(xCoord) {
-	    _.each(yrange, function(yCoord) {
-		terrain.clear(xCoord, yCoord);
-	    });
-	});
-    };
-
-    var plantStructure = function(structure) {
-	structure.dbHandle =
-	    structureDb.add(structure,
-			    structure.xTile, structure.xTile + structure.width,
-			    structure.yTile, structure.yTile + structure.height);
-
-	var xrange = _.range(structure.xTile, structure.xTile + structure.width);
-	var yrange = _.range(structure.yTile, structure.yTile + structure.height);
-
-	_.each(xrange, function(xCoord) {
-	    _.each(yrange, function(yCoord) {
-		terrain.block(xCoord, yCoord);
-	    });
-	});
-    };
-
     var initForest = function(tileBounds, count) {
 	var trees = [];
 	var treeWidth = structureFootprints.TREE.width;
@@ -449,11 +476,11 @@ window.miracleMile.bootstrap = function() {
 		resources: structureFootprints.TREE.resources,
 		width: structureFootprints.TREE.width,
 		height: structureFootprints.TREE.height,
-		team: null
+		team: 'no team'
 	    };
 
 	    if (!terrain.isBlocked(newTree.xTile, newTree.yTile)) {
-		plantStructure(newTree);
+		structures.plantStructure(newTree);
 		trees.push(newTree);
 	    }
 	}
@@ -481,9 +508,9 @@ window.miracleMile.bootstrap = function() {
 
     var northForest = initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
     var southForest = initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
-    var forest = northForest.concat(southForest);
 
-    console.log(structureDb.checkSpace());
+    // TODO forest should be managed by a structure manager
+    var forest = northForest.concat(southForest);
 
     /////////////////////////////////////
 
@@ -536,11 +563,14 @@ window.miracleMile.bootstrap = function() {
 				memberX, memberY, swarmWidth, swarmHeight);
 	}); // each member
 
+	// TODO this should be managed in disposeStructure
 	var livingAndDead = _.groupBy(forest, function(tree) {
 	    return (tree.resources > 0) ? 'living' : 'dead';
 	});
 
-	_.each(livingAndDead.dead, disposeStructure);
+	_.each(livingAndDead.dead, function(corpse) {
+	    structures.disposeStructure(corpse);
+	});
 
 	forest = livingAndDead.living;
 	_.each(forest, function(tree) {
