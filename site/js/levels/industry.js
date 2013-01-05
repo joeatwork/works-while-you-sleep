@@ -39,6 +39,18 @@ window.Terrain = (function() {
 	    return this.cells[row][column];
 	},
 
+	rectIsBlocked: function(column, row, width, height) {
+	    for (var checkX = 0; checkX < width; checkX++) {
+		for (var checkY = 0; checkY < height; checkY++) {
+		    if (this.isBlocked(column + checkX, row + checkY)) {
+			return true;
+		    }
+		}// y
+	    }// x
+
+	    return false;
+	},
+
 	width: function() { return this.columns; },
 	height: function() { return this.rows; }
     };
@@ -48,23 +60,94 @@ window.Terrain = (function() {
 
 window.Structures = (function() {
     'use strict';
+
     var Structures = function(terrain) {
 	this.terrain = terrain;
 	this.structureDb = window.SpaceManager.treeSpace(0, terrain.width,
 							 0, terrain.height);
+	this.all = {};
+	this.nextHashCode = 1;
     };
 
     Structures.prototype = {
+
+	footprints: {
+	    TREE: {
+		name: 'TREE',
+		width: 1, height: 1,
+		maxResources: 1, resources: 1
+	    },
+	    SMALL_TOWER: {
+		name: 'SMALL_TOWER',
+		width: 2, height: 1,
+		maxResources: 3, resources: 0
+	    },
+	    MID_TOWER: {
+		 name: 'MID_TOWER',
+		width: 2, height: 1,
+		maxResources: 6, resources: 0
+	    },
+	    TALL_TOWER: {
+		name: 'TALL_TOWER',
+		width: 2, height: 1,
+		maxResources: 9, resources: 0
+	    },
+	    TALLEST_TOWER: {
+		name: 'TALLEST_TOWER',
+		width: 2, height: 1,
+		maxResources: 12, resources: 0
+	    },
+
+	    // TOO EXPENSIVE!
+	    IDOL_STAGE_1: {
+		name: 'IDOL_STAGE_1',
+		width: 6, height: 2,
+		maxResources:  5, resources: 0
+	    },
+	    IDOL_STAGE_2: {
+		name: 'IDOL_STAGE_2',
+		width: 6, height: 2,
+		maxResources: 10, resources: 0
+	    },
+	    IDOL_STAGE_3: {
+		name: 'IDOL_STAGE_3',
+		width: 6, height: 2,
+		maxResources: 15, resources: 0
+	    },
+	    IDOL_STAGE_4: {
+		name: 'IDOL_STAGE_4',
+		width: 6, height: 2,
+		maxResources: 20, resources: 0
+	    },
+	    IDOL_STAGE_5: {
+		name: 'IDOL_STAGE_5',
+		width: 6, height: 2,
+		maxResources: 25, resources: 0
+	    }
+	},
+
 	findInRect: function(searchLeft, searchRight,
 			     searchTop, searchBottom) {
 	    return this.structureDb.find(searchLeft, searchRight,
 					 searchTop, searchBottom);
 	},
 
+	allStructures: function() {
+	    var ret = [];
+	    for(var k in this.all) {
+		ret.push(this.all[k]);
+	    }
+
+	    return _.sortBy(ret, function(struct) {
+		return struct.yTile + struct.height;
+	    });
+	},
 
 	disposeStructure: function(structure) {
 	    var self = this;
 	    self.structureDb.remove(structure.dbHandle);
+
+	    delete this.all[structure.structuresHashCode];
 
 	    var xrange = _.range(structure.xTile, structure.xTile + structure.width);
 	    var yrange = _.range(structure.yTile, structure.yTile + structure.height);
@@ -83,6 +166,10 @@ window.Structures = (function() {
 				     structure.xTile, structure.xTile + structure.width,
 				     structure.yTile, structure.yTile + structure.height);
 
+	    structure.structuresHashCode = this.nextHashCode;
+	    this.nextHashCode = this.nextHashCode + 1;
+	    this.all[structure.structuresHashCode] = structure;
+
 	    var xrange = _.range(structure.xTile, structure.xTile + structure.width);
 	    var yrange = _.range(structure.yTile, structure.yTile + structure.height);
 
@@ -100,19 +187,86 @@ window.Structures = (function() {
 window.Culture = (function() {
     'use strict';
 
-    var Culture = function(structures, maxSearchRadius) {
+    var RESOURCE_CAPACITY = 1; // how many resources until a miner should build?
+
+    var Culture = function(terrain, structures, maxSearchRadius) {
+	this.terrain = terrain;
 	this.structures = structures;
 	this.startRadius = 1;
 	this.maxSearchRadius = maxSearchRadius;
     };
 
     Culture.prototype = {
+
+	// Iteration is borrowed from
+	// http://stackoverflow.com/questions/398299/looping-in-a-spiral
+	findBuildSite: function(closeTo, structure) {
+	    var ret = false;
+	    var operations = 0;
+	    var startX = closeTo.xTile;
+	    var startY = closeTo.yTile;
+
+	    var structWidth = structure.width;
+	    var structHeight = structure.height;
+
+	    var dx = 0;
+	    var dy = -1;
+	    var x = 0;
+	    var y = 0;
+
+	    var width = this.terrain.width();
+	    var height = this.terrain.height();
+
+	    var halfMaxDimension = Math.max(startX,
+					    startY,
+					    width - startX,
+					    height - startY);
+	    var maxDimension = halfMaxDimension * 2;
+	    var upperLoopBound = maxDimension * maxDimension;
+
+	    for (var i = 0; i < upperLoopBound; i++) {
+		operations = operations + 1;
+		var checkX = startX + x;
+		var checkY = startY + y;
+
+		if ((checkX < this.terrain.columns) && 
+		    (checkY < this.terrain.rows)) {
+		    var blocked = this.terrain.rectIsBlocked(checkX, checkY, 
+							     structure.width,
+							     structure.height);
+		    operations = operations + structure.width + structure.height;
+
+		    if (! blocked) {
+			ret = { xTile: checkX, yTile: checkY,
+				width: structure.width, height: structure.height };
+			break;
+		    }
+		}
+		// otherwise, move on
+
+		if ((x == y) ||
+		    ((x < 0) && (x == -y)) ||
+		    ((x > 0) && (x == 1-y))) {
+		    var oldDx = dx;
+		    dx = -dy;
+		    dy = oldDx;
+		}
+
+		x = x + dx;
+		y = y + dy;
+	    }
+
+	    return { site: ret, operations: operations };
+	},
+
 	getGoal : function(member) {
 	    var found = [];
 	    var searchRadius = this.startRadius;
 	    var operations = 0;
+	    var mineIfTrue = (member.resources <= RESOURCE_CAPACITY);
+	    var citySite = member;
 
-	    while ((found.length == 0) && searchRadius < this.maxSearchRadius) {
+	    while (searchRadius < this.maxSearchRadius) {
 		var searchLeft = member.xTile - searchRadius;
 		var searchRight = member.xTile + member.width + searchRadius;
 
@@ -124,24 +278,58 @@ window.Culture = (function() {
 
 		operations = operations + found.findOperations;
 		searchRadius = searchRadius * 2;
-	    }
 
-	    // Consider randomly splicing stuff out?
-	    for (var i = 0; i < found.length; i++ ) {
-		var candidate = found[i];
-		if (candidate.resources > 0) { // TODO Color check here
+		// Consider randomly splicing stuff out?
+		for (var i = 0; i < found.length; i++ ) {
+		    operations = operations + 1;
+
+		    var candidate = found[i];
+		    if (mineIfTrue &&
+			(candidate.resources > 0) &&
+			(candidate.team != member.team)) {
+			return {
+			    found: candidate,
+			    operations: operations
+			}
+		    }
+		    else if ((! mineIfTrue) &&
+			     (candidate.resources < candidate.maxResources) &&
+			     (candidate.team == member.team)) {
+			return {
+			    found: candidate,
+			    operations: operations
+			}
+		    }
+		    else if ((candidate.team == member.team) &&
+			     (citySite == member)) {
+			citySite = candidate;
+		    }
+		}// for each found
+	    }// while search radius isn't larger than max
+
+	    // If we're can't find a structure to mine or repair:
+	    if (member.resources > 0) {
+		var newStructure = _.clone(this.structures.footprints.IDOL_STAGE_5);
+		var buildSite = this.findBuildSite(citySite, newStructure);
+		operations = operations + buildSite.operations;
+		if (buildSite.site) {
+		    newStructure.xTile = buildSite.site.xTile;
+		    newStructure.yTile = buildSite.site.yTile;
+		    newStructure.team = member.team;
+		    this.structures.plantStructure(newStructure);
+
 		    return {
-			found: candidate,
+			found: newStructure,
 			operations: operations
 		    }
 		}
-	    }// for
+	    }
 
 	    return {
 		found: undefined,
 		operations: operations
 	    };
-	}	
+	}
     };
 
     return Culture;
@@ -161,8 +349,9 @@ window.Swarm = (function() {
     var SOUTH = { offsetX:  0, offsetY:  1 };
     var WEST  = { offsetX: -1, offsetY:  0 };
 
-    var Swarm = function(terrain, culture, walkDistance) {
+    var Swarm = function(terrain, structures, culture, walkDistance) {
 	this.terrain = terrain;
+	this.structures = structures;
 	this.culture = culture;
 	this.walkDistance = walkDistance;
 	this._initMembers();
@@ -279,27 +468,28 @@ window.Swarm = (function() {
 
 		    if (((Math.abs(distanceX) <= 1) && (Math.abs(distanceY) <= 0)) ||
 			((Math.abs(distanceX) <= 0) && (Math.abs(distanceY) <= 1))) {
-			var transfer = Math.min(MINING_SPEED * timeElapsedMillis,
-						goal.found.resources);
-			goal.found.resources -= transfer;
-			member.resources += transfer;
-			move = STAND_STILL;
+
+			if (goal.found.team == member.team) {
+			    var built = Math.min(MINING_SPEED * timeElapsedMillis,
+						 member.resources);
+			    goal.found.resources += built;
+			    member.resources -= built;
+			    move = STAND_STILL;
+   			}
+			else { // Mine
+			    var mined = Math.min(MINING_SPEED * timeElapsedMillis,
+						    goal.found.resources);
+			    goal.found.resources -= mined;
+			    member.resources += mined;
+			    move = STAND_STILL;
+			}
+
+			if (goal.found.resources <= 0) {
+			    this.structures.disposeStructure(goal.found);
+			}
 		    }
-		    else if ((distanceY > 0) &&
-			(! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
-			move = SOUTH;
-		    }
-		    else if ((distanceY < 0) &&
-			     (! this.terrain.isBlocked(member.xTile, member.yTile - 1))) {
-			move = NORTH;
-		    }
-		    else if ((distanceX > 0) &&
-			     (! this.terrain.isBlocked(member.xTile + 1, member.yTile))) {
-			move = EAST;
-		    }
-		    else if ((distanceX < 0) &&
-			     (! this.terrain.isBlocked(member.xTile - 1, member.yTile))) {
-			move = WEST;
+		    else {
+			move = this._moveToGoal(member, distanceX, distanceY);
 		    }
 		}
 
@@ -323,7 +513,50 @@ window.Swarm = (function() {
 		}
 
 	    } // for member in swarm
-	} // updateGoals
+	}, // updateGoals
+
+	_moveToGoal: function(member, distanceX, distanceY) {
+	    var move = STAND_STILL;
+	    if (0.5 < Math.random()) {
+	    	if ((distanceY > 0) &&
+		    (! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
+		    move = SOUTH;
+		}
+		else if ((distanceY < 0) &&
+			 (! this.terrain.isBlocked(member.xTile, member.yTile - 1))) {
+		    move = NORTH;
+		}
+		else if ((distanceX > 0) &&
+			 (! this.terrain.isBlocked(member.xTile + 1, member.yTile))) {
+		    move = EAST;
+		}
+		else if ((distanceX < 0) &&
+			 (! this.terrain.isBlocked(member.xTile - 1, member.yTile))) {
+		    move = WEST;
+		}
+	    }
+	    else {
+		if ((distanceX > 0) &&
+			 (! this.terrain.isBlocked(member.xTile + 1, member.yTile))) {
+		    move = EAST;
+		}
+		else if ((distanceX < 0) &&
+			 (! this.terrain.isBlocked(member.xTile - 1, member.yTile))) {
+		    move = WEST;
+		}
+	    	else if ((distanceY > 0) &&
+		    (! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
+		    move = SOUTH;
+		}
+		else if ((distanceY < 0) &&
+			 (! this.terrain.isBlocked(member.xTile, member.yTile - 1))) {
+		    move = NORTH;
+		}
+	    }
+
+	    return move;
+	}
+
     }; // Swarm.prototype
 
     return Swarm;
@@ -441,51 +674,28 @@ window.miracleMile.bootstrap = function() {
     /////////////////////////////////////////
 
     var structures = new window.Structures(terrain);
-    var culture = new window.Culture(structures,
-				     Math.min(TERRAIN_COLS/2, TERRAIN_ROWS/2));
+    var culture = new window.Culture(terrain, structures,
+				     Math.min(TERRAIN_COLS, TERRAIN_ROWS));
 
     //////////////////////////////////////////
-
-    var structureFootprints = {
-	TREE: { width: 1, height: 1, resources: 1 },
-	SMALL_TOWER: { width: 2, height: 1, resources: 3 },
-	MID_TOWER: { width: 2, height: 1, resources: 6 },
-	TALL_TOWER: { width: 2, height: 1, resources: 9 },
-	TALLEST_TOWER: { width: 2, height: 1, resources: 12 },
-
-	IDOL_STAGE_1: { width: 6, height: 2, resources:  5 },
-	IDOL_STAGE_2: { width: 6, height: 2, resources: 10 },
-	IDOL_STAGE_3: { width: 6, height: 2, resources: 15 },
-	IDOL_STAGE_4: { width: 6, height: 2, resources: 20 },
-	IDOL_STAGE_5: { width: 6, height: 2, resources: 25 } // TOO EXPENSIVE!
-    };
 
     ////////////////////////////////////////////
 
     var initForest = function(tileBounds, count) {
-	var trees = [];
-	var treeWidth = structureFootprints.TREE.width;
-	var treeHeight = structureFootprints.TREE.height;
-
-	while (trees.length < count) {
-	    var newTree = {
-		xTile: _.random(tileBounds.left,
-				tileBounds.left + tileBounds.width),
-		yTile: _.random(tileBounds.top,
-				tileBounds.top + tileBounds.height),
-		resources: structureFootprints.TREE.resources,
-		width: structureFootprints.TREE.width,
-		height: structureFootprints.TREE.height,
-		team: 'no team'
-	    };
+	var trees = 0;
+	while (trees < count) {
+	    var newTree = _.clone(structures.footprints.TREE);
+	    newTree.xTile = _.random(tileBounds.left,
+				     tileBounds.left + tileBounds.width),
+	    newTree.yTile = _.random(tileBounds.top,
+				     tileBounds.top + tileBounds.height),
+	    newTree.team = 'no team';
 
 	    if (!terrain.isBlocked(newTree.xTile, newTree.yTile)) {
 		structures.plantStructure(newTree);
-		trees.push(newTree);
+		trees = trees + 1;
 	    }
-	}
-
-	return _.sortBy(trees, 'yTile');
+	}// while
     };
 
     var drawTerrain = function() {
@@ -504,13 +714,11 @@ window.miracleMile.bootstrap = function() {
 
     ///////////////////////////////////////
 
-    var swarm = new window.Swarm(terrain, culture, TILE_IN_PX);
+    // This arg list is a bit of a smell, since terrain <- structures <- culture
+    var swarm = new window.Swarm(terrain, structures, culture, TILE_IN_PX);
 
-    var northForest = initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
-    var southForest = initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
-
-    // TODO forest should be managed by a structure manager
-    var forest = northForest.concat(southForest);
+    initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
+    initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
 
     /////////////////////////////////////
 
@@ -563,29 +771,23 @@ window.miracleMile.bootstrap = function() {
 				memberX, memberY, swarmWidth, swarmHeight);
 	}); // each member
 
-	// TODO this should be managed in disposeStructure
-	var livingAndDead = _.groupBy(forest, function(tree) {
-	    return (tree.resources > 0) ? 'living' : 'dead';
-	});
 
-	_.each(livingAndDead.dead, function(corpse) {
-	    structures.disposeStructure(corpse);
-	});
-
-	forest = livingAndDead.living;
-	_.each(forest, function(tree) {
-	    var treeTileX = tree.xTile * TILE_IN_PX;
-	    var treeTileY = tree.yTile * TILE_IN_PX;
-
-	    var treeDrawX = treeTileX + structureSpriteMap.TREE.draw_offset.left;
-	    var treeDrawY = treeTileY + structureSpriteMap.TREE.draw_offset.top;
+	var structList = structures.allStructures();
+	for (var i=0; i < structList.length; i++) {
+	    var struct = structList[i];
+	    var tileX = struct.xTile * TILE_IN_PX;
+	    var tileY = struct.yTile * TILE_IN_PX;
+	    var sprite = structureSpriteMap[ struct.name ];
+	    
+	    var drawX = tileX + sprite.draw_offset.left;
+	    var drawY = tileY + sprite.draw_offset.top;
 
 	    renderGfx.drawImage(structureSprites,
-				structureSpriteMap.TREE.left, structureSpriteMap.TREE.top,
-				structureSpriteMap.TREE.width, structureSpriteMap.TREE.height,
-				treeDrawX, treeDrawY,
-				structureSpriteMap.TREE.width, structureSpriteMap.TREE.height);
-	}); // each tree
+				sprite.left, sprite.top,
+				sprite.width, sprite.height,
+				drawX, drawY,
+				sprite.width, sprite.height);
+	}
 
 	// drawTerrain();
 
