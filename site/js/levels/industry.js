@@ -274,6 +274,19 @@ window.Culture = (function() {
 	    var operations = 0;
 	    var citySite = member;
 
+	    if (member.timeSinceWorked > 30) {
+		member.vacation = member.timeSinceWorked;
+		member.timeSinceWorked = 0;
+	    }
+
+	    if (member.vacation > 0) {
+		member.vacation = member.vacation - 1;
+		return {
+		    found: undefined,
+		    operations: 0
+		};
+	    }
+
 	    while (searchRadius < this.maxSearchRadius) {
 		var searchLeft = member.xTile - searchRadius;
 		var searchRight = member.xTile + member.width + searchRadius;
@@ -489,7 +502,8 @@ window.Swarm = (function() {
 		var move = false;
 		var goal = this.culture.getGoal(member);
 		if (goal.found) {
-		    // NOT RIGHT.
+		    member.timeSinceWorked = member.timeSinceWorked + 1;
+
 		    var distanceX = goal.found.xTile - member.xTile;
 		    var distanceY = goal.found.yTile - member.yTile;
 
@@ -502,6 +516,7 @@ window.Swarm = (function() {
 
 		    if (((Math.abs(distanceX) <= 1) && (Math.abs(distanceY) <= 0)) ||
 			((Math.abs(distanceX) <= 0) && (Math.abs(distanceY) <= 1))) {
+			member.timeSinceWorked = 0;
 
 			if (goal.found.team == member.team) {
 			    var built = Math.min(MINING_SPEED * timeElapsedMillis,
