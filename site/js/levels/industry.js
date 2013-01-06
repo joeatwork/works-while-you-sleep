@@ -36,7 +36,14 @@ window.Terrain = (function() {
 	},
 
 	isBlocked: function(column, row) {
-	    return this.cells[row][column];
+	    var row = this.cells[row];
+	    if (!_.isArray(row)) {
+		return true;
+	    }
+	    else {
+		var ret = row[column];
+		return ret || (!_.isBoolean(ret));
+	    }
 	},
 
 	rectIsBlocked: function(column, row, width, height) {
@@ -80,49 +87,49 @@ window.Structures = (function() {
 	    SMALL_TOWER: {
 		name: 'SMALL_TOWER',
 		width: 2, height: 1,
-		maxResources: 3, resources: 0
+		maxResources: 2, resources: 0
 	    },
 	    MID_TOWER: {
 		 name: 'MID_TOWER',
 		width: 2, height: 1,
-		maxResources: 6, resources: 0
+		maxResources: 3, resources: 0
 	    },
 	    TALL_TOWER: {
 		name: 'TALL_TOWER',
 		width: 2, height: 1,
-		maxResources: 9, resources: 0
+		maxResources: 4, resources: 0
 	    },
 	    TALLEST_TOWER: {
 		name: 'TALLEST_TOWER',
 		width: 2, height: 1,
-		maxResources: 12, resources: 0
+		maxResources: 5, resources: 0
 	    },
 
 	    // TOO EXPENSIVE!
 	    IDOL_STAGE_1: {
 		name: 'IDOL_STAGE_1',
-		width: 6, height: 2,
-		maxResources:  5, resources: 0
+		width: 6, height: 3,
+		maxResources:  6, resources: 0
 	    },
 	    IDOL_STAGE_2: {
 		name: 'IDOL_STAGE_2',
-		width: 6, height: 2,
-		maxResources: 10, resources: 0
+		width: 6, height: 3,
+		maxResources: 7, resources: 0
 	    },
 	    IDOL_STAGE_3: {
 		name: 'IDOL_STAGE_3',
-		width: 6, height: 2,
-		maxResources: 15, resources: 0
+		width: 6, height: 3,
+		maxResources: 8, resources: 0
 	    },
 	    IDOL_STAGE_4: {
 		name: 'IDOL_STAGE_4',
-		width: 6, height: 2,
-		maxResources: 20, resources: 0
+		width: 6, height: 3,
+		maxResources: 9, resources: 0
 	    },
 	    IDOL_STAGE_5: {
 		name: 'IDOL_STAGE_5',
-		width: 6, height: 2,
-		maxResources: 25, resources: 0
+		width: 6, height: 3,
+		maxResources: 10, resources: 0
 	    }
 	},
 
@@ -187,8 +194,6 @@ window.Structures = (function() {
 window.Culture = (function() {
     'use strict';
 
-    var RESOURCE_CAPACITY = 1; // how many resources until a miner should build?
-
     var Culture = function(terrain, structures, maxSearchRadius) {
 	this.terrain = terrain;
 	this.structures = structures;
@@ -197,6 +202,8 @@ window.Culture = (function() {
     };
 
     Culture.prototype = {
+
+	RESOURCE_CAPACITY: 1, // how many resources can a miner carry
 
 	// Iteration is borrowed from
 	// http://stackoverflow.com/questions/398299/looping-in-a-spiral
@@ -231,13 +238,15 @@ window.Culture = (function() {
 
 		if ((checkX < this.terrain.columns) && 
 		    (checkY < this.terrain.rows)) {
+
+		    // We like to build with 2 tile clearance on each side
 		    var blocked = this.terrain.rectIsBlocked(checkX, checkY, 
-							     structure.width,
-							     structure.height);
+							     structure.width + 4,
+							     structure.height + 4);
 		    operations = operations + structure.width + structure.height;
 
 		    if (! blocked) {
-			ret = { xTile: checkX, yTile: checkY,
+			ret = { xTile: checkX + 2, yTile: checkY + 2,
 				width: structure.width, height: structure.height };
 			break;
 		    }
@@ -246,7 +255,7 @@ window.Culture = (function() {
 
 		if ((x == y) ||
 		    ((x < 0) && (x == -y)) ||
-		    ((x > 0) && (x == 1-y))) {
+		    ((x > 0) && (x == 1-y))) { // PRoblem- this doesn't end up with a cluster
 		    var oldDx = dx;
 		    dx = -dy;
 		    dy = oldDx;
@@ -263,7 +272,6 @@ window.Culture = (function() {
 	    var found = [];
 	    var searchRadius = this.startRadius;
 	    var operations = 0;
-	    var mineIfTrue = (member.resources <= RESOURCE_CAPACITY);
 	    var citySite = member;
 
 	    while (searchRadius < this.maxSearchRadius) {
@@ -277,14 +285,14 @@ window.Culture = (function() {
 						       searchTop, searchBottom);
 
 		operations = operations + found.findOperations;
+		// found = _.shuffle(found); // TODO deal with it
 		searchRadius = searchRadius * 2;
 
-		// Consider randomly splicing stuff out?
 		for (var i = 0; i < found.length; i++ ) {
 		    operations = operations + 1;
 
 		    var candidate = found[i];
-		    if (mineIfTrue &&
+		    if ((member.resources < this.RESOURCE_CAPACITY) &&
 			(candidate.resources > 0) &&
 			(candidate.team != member.team)) {
 			return {
@@ -292,7 +300,7 @@ window.Culture = (function() {
 			    operations: operations
 			}
 		    }
-		    else if ((! mineIfTrue) &&
+		    else if ((member.resources > 0) &&
 			     (candidate.resources < candidate.maxResources) &&
 			     (candidate.team == member.team)) {
 			return {
@@ -307,9 +315,9 @@ window.Culture = (function() {
 		}// for each found
 	    }// while search radius isn't larger than max
 
-	    // If we're can't find a structure to mine or repair:
+	    // If we're can't find a structure to mine or repair, build a new one
 	    if (member.resources > 0) {
-		var newStructure = _.clone(this.structures.footprints.IDOL_STAGE_5);
+		var newStructure = this._pickBuilding(citySite, member);
 		var buildSite = this.findBuildSite(citySite, newStructure);
 		operations = operations + buildSite.operations;
 		if (buildSite.site) {
@@ -329,6 +337,24 @@ window.Culture = (function() {
 		found: undefined,
 		operations: operations
 	    };
+	}, // getGoal
+
+	_pickBuilding: function(site, member) {
+	    var model = this.structures.footprints.SMALL_TOWER;
+	    if (site.name == 'SMALL_TOWER') {
+		model = this.structures.footprints.MID_TOWER;
+	    }
+	    else if (site.name == 'MID_TOWER') {
+		model = this.structures.footprints.TALL_TOWER;
+	    }
+	    else if (site.name == 'TALL_TOWER') {
+		model = this.structures.footprints.TALLEST_TOWER;
+	    }
+	    else if (site.name == 'TALLEST_TOWER') {
+		model = this.structures.footprints.IDOL_STAGE_5;
+	    }
+		
+	    return _.clone(model);
 	}
     };
 
@@ -338,7 +364,7 @@ window.Culture = (function() {
 window.Swarm = (function() {
     'use strict';
 
-    var TEAM_SIZE = 50; // members per swarm team
+    var TEAM_SIZE = 50; // members per swarm team (should be 50ish)
     var WALK_SPEED = 16/500; // PIXELS PER MILLISECOND
     var MINING_SPEED = 1/5000; // RESOURCE UNIT PER MILLISECOND
 
@@ -463,8 +489,16 @@ window.Swarm = (function() {
 		var move = false;
 		var goal = this.culture.getGoal(member);
 		if (goal.found) {
+		    // NOT RIGHT.
 		    var distanceX = goal.found.xTile - member.xTile;
 		    var distanceY = goal.found.yTile - member.yTile;
+
+		    if (distanceX < 0) {
+			distanceX = Math.min(0, distanceX + goal.found.width - 1);
+		    }
+		    if (distanceY < 0) {
+			distanceY = Math.min(0, distanceY + goal.found.height - 1);
+		    }
 
 		    if (((Math.abs(distanceX) <= 1) && (Math.abs(distanceY) <= 0)) ||
 			((Math.abs(distanceX) <= 0) && (Math.abs(distanceY) <= 1))) {
@@ -516,7 +550,7 @@ window.Swarm = (function() {
 	}, // updateGoals
 
 	_moveToGoal: function(member, distanceX, distanceY) {
-	    var move = STAND_STILL;
+	    var move = false;
 	    if (0.5 < Math.random()) {
 	    	if ((distanceY > 0) &&
 		    (! this.terrain.isBlocked(member.xTile, member.yTile + 1))) {
@@ -562,7 +596,6 @@ window.Swarm = (function() {
     return Swarm;
 })();
 
-
 window.miracleMile = {};
 window.miracleMile.bootstrap = function() {
     'use strict';
@@ -572,45 +605,173 @@ window.miracleMile.bootstrap = function() {
 
     var structureSpriteMap = {
 	TREE: {
-	    top: 0, left: 0, width: 32, height: 32,
-	    draw_offset: { top: -16, left: -8 }
+	    'no team' : {
+		top: 0, left: 0, width: 32, height: 32,
+		draw_offset: { top: -16, left: -8 }
+	    }
+	},
+	TOWER_PAD: {
+	    white: {
+		top: 0, left: 96, width: 32, height: 32,
+		draw_offset: { top: -16, left: 0 }
+	    },
+	    green: {
+		top: 0, left: 128, width: 32, height: 32,
+		draw_offset: { top: -16, left: 0 }
+	    },
+	    red: {
+		top: 0, left: 160, width: 32, height: 32,
+		draw_offset: { top: -16, left: 0 }
+	    }
 	},
 	SMALL_TOWER: {
-	    top: 32, left: 0, width: 32, height: 48,
-	    draw_offset: { top: -32, left: 0 }
+	    white: {
+		top: 32, left: 0, width: 32, height: 48,
+		draw_offset: { top: -32, left: 0 }
+	    },
+	    green: {
+		top: 32, left: 32, width: 32, height: 48,
+		draw_offset: { top: -32, left: 0 }
+	    },
+	    red: {
+		top: 32, left: 64, width: 32, height: 48,
+		draw_offset: { top: -32, left: 0 }
+	    }
 	},
 	MID_TOWER: {
-	    top: 80, left: 0, width: 32, height: 64,
-	    draw_offset: { top: -48, left: 0 }
+	    white: {
+		top: 80, left: 0, width: 32, height: 64,
+		draw_offset: { top: -48, left: 0 }
+	    },
+	    green: {
+		top: 80, left: 32, width: 32, height: 64,
+		draw_offset: { top: -48, left: 0 }
+	    },
+	    red: {
+		top: 80, left: 64, width: 32, height: 64,
+		draw_offset: { top: -48, left: 0 }
+	    }
 	},
 	TALL_TOWER: {
-	    top: 144, left: 0, width: 32, height: 96,
-	    draw_offset: { top: -80, left: 0 }
+	    white: {
+		top: 144, left: 0, width: 32, height: 96,
+		draw_offset: { top: -80, left: 0 }
+	    },
+	    green: {
+		top: 144, left: 32, width: 32, height: 96,
+		draw_offset: { top: -80, left: 0 }
+	    },
+	    red: {
+		top: 144, left: 64, width: 32, height: 96,
+		draw_offset: { top: -80, left: 0 }
+	    }
 	},
 	TALLEST_TOWER: {
-	    top: 240, left: 0, width: 32, height: 160,
-	    draw_offset: { top: -144, left: 0 }
+	    white: {
+		top: 240, left: 0, width: 32, height: 160,
+		draw_offset: { top: -144, left: 0 }
+	    },
+	    green: {
+		top: 240, left: 32, width: 32, height: 160,
+		draw_offset: { top: -144, left: 0 }
+	    },
+	    red: {
+		top: 240, left: 64, width: 32, height: 160,
+		draw_offset: { top: -144, left: 0 }
+	    }
 	},
 	IDOL_STAGE_1: {
-	    top: 400, left: 128 * 4, width: 128, height: 240,
-	    draw_offset: {top: -192, left: -16}
+	    white: {
+		top: 400, left: 128 * 4, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    green: {
+		top: 880, left: 128 * 4, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    red: {
+		top: 640, left: 128 * 4, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    }
 	},
 	IDOL_STAGE_2: {
-	    top: 400, left: 128 * 3, width: 128, height: 240,
-	    draw_offset: {top: -192, left: -16}
+	    white: {
+		top: 400, left: 128 * 3, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    green: {
+		top: 880, left: 128 * 3, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    red: {
+		top: 640, left: 128 * 3, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    }
 	},
 	IDOL_STAGE_3: {
-	    top: 400, left: 128 * 2, width: 128, height: 240,
-	    draw_offset: {top: -192, left: -16}
+	    white: {
+		top: 400, left: 128 * 2, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    green: {
+		top: 880, left: 128 * 2, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    red: {
+		top: 640, left: 128 * 2, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    }
 	},
 	IDOL_STAGE_4: {
-	    top: 400, left: 128 * 1, width: 128, height: 240,
-	    draw_offset: {top: -192, left: -16}
+	    white: {
+		top: 400, left: 128 * 1, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    green: {
+		top: 880, left: 128 * 1, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    red: {
+		top: 640, left: 128 * 1, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    }
 	},
 	IDOL_STAGE_5: {
-	    top: 400, left: 128 * 0, width: 128, height: 240,
-	    draw_offset: {top: -192, left: -16}
+	    white: {
+		top: 400, left: 128 * 0, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    green: {
+		top: 880, left: 128 * 0, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    },
+	    red: {
+		top: 640, left: 128 * 0, width: 128, height: 240,
+		draw_offset: {top: -192, left: -16}
+	    }
 	}
+    };
+
+    var spriteProgression = {
+	TREE: [ 'TREE' ],
+	SMALL_TOWER: [ 'TOWER_PAD', 'SMALL_TOWER' ],
+	MID_TOWER: [ 'TOWER_PAD', 'SMALL_TOWER', 'MID_TOWER' ],
+	TALL_TOWER: [ 'TOWER_PAD', 'SMALL_TOWER', 'MID_TOWER', 'TALL_TOWER' ],
+	TALLEST_TOWER: [ 'TOWER_PAD', 'SMALL_TOWER', 'MID_TOWER', 'TALL_TOWER', 'TALLEST_TOWER' ],
+
+	IDOL_STAGE_5: [ 'IDOL_STAGE_1', 'IDOL_STAGE_2', 'IDOL_STAGE_3', 'IDOL_STAGE_4', 'IDOL_STAGE_5' ]
+    };
+
+    var getSprite = function(structure) {
+	var cells = spriteProgression[structure.name];
+	var progress = structure.resources / structure.maxResources;
+	var cellNameIndex = Math.floor(progress * cells.length);
+	if (cellNameIndex >= cells.length) {
+	    cellNameIndex = cells.length - 1;
+	}
+
+	var cellName = cells[ cellNameIndex ];
+	return structureSpriteMap[ cellName ][ structure.team ];
     };
 
     var swarmSpriteMap = { // 'sprites/spaceman_overworld_16x16_tiny.png';
@@ -717,8 +878,8 @@ window.miracleMile.bootstrap = function() {
     // This arg list is a bit of a smell, since terrain <- structures <- culture
     var swarm = new window.Swarm(terrain, structures, culture, TILE_IN_PX);
 
-    initForest({ top: 6, left: 4, width: 24, height: 16 }, 100);
-    initForest({ top: 20, left: 36, width: 24, height: 16 }, 100);
+    initForest({ top: 6, left: 4, width: 24, height: 20 }, 150);
+    initForest({ top: 14, left: 36, width: 24, height: 20 }, 150);
 
     /////////////////////////////////////
 
@@ -758,6 +919,10 @@ window.miracleMile.bootstrap = function() {
 	    var color = member.team;
 	    var swarmFrame = swarmSpriteMap[color].SOUTH[0];
 
+	    if (member.resources >= culture.RESOURCE_CAPACITY) {
+		swarmFrame = swarmSpriteMap[color].WALK_EAST[0];
+	    }
+
 	    var swarmWidth = swarmFrame.width;
 	    var swarmHeight = swarmFrame.height;
 
@@ -777,7 +942,7 @@ window.miracleMile.bootstrap = function() {
 	    var struct = structList[i];
 	    var tileX = struct.xTile * TILE_IN_PX;
 	    var tileY = struct.yTile * TILE_IN_PX;
-	    var sprite = structureSpriteMap[ struct.name ];
+	    var sprite = getSprite(struct);
 	    
 	    var drawX = tileX + sprite.draw_offset.left;
 	    var drawY = tileY + sprite.draw_offset.top;
