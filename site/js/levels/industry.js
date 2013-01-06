@@ -762,7 +762,7 @@ window.miracleMile.bootstrap = function() {
 	IDOL_STAGE_5: [ 'IDOL_STAGE_1', 'IDOL_STAGE_2', 'IDOL_STAGE_3', 'IDOL_STAGE_4', 'IDOL_STAGE_5' ]
     };
 
-    var getSprite = function(structure) {
+    var getStructureSprite = function(structure) {
 	var cells = spriteProgression[structure.name];
 	var progress = structure.resources / structure.maxResources;
 	var cellNameIndex = Math.floor(progress * cells.length);
@@ -772,6 +772,39 @@ window.miracleMile.bootstrap = function() {
 
 	var cellName = cells[ cellNameIndex ];
 	return structureSpriteMap[ cellName ][ structure.team ];
+    };
+
+    var getSwarmSprite = function(member) {
+	var teamSprites = swarmSpriteMap[member.team];
+	var xProgress = member.offsetX / TILE_IN_PX;
+	var yProgress = member.offsetY / TILE_IN_PX;
+
+	var dir = 'SOUTH';
+	var progress = 0;
+	if      (yProgress > 0) {
+	    dir = 'WALK_SOUTH';
+	    progress = yProgress;
+	}
+	else if (yProgress < 0) {
+	    dir = 'WALK_NORTH';
+	    progress = -yProgress;
+	}
+	else if (xProgress > 0) {
+	    dir = 'WALK_EAST';
+	    progress = xProgress;
+	}
+	else if (xProgress < 0) {
+	    dir = 'WALK_WEST';
+	    progress = -xProgress;
+	}
+
+	var frames = teamSprites[dir];
+	var frameIndex = Math.floor(progress * frames.length);
+	if (frameIndex >= frames.length) {
+	    frameIndex = frames.length - 1;
+	}
+
+	return frames[frameIndex];
     };
 
     var swarmSpriteMap = { // 'sprites/spaceman_overworld_16x16_tiny.png';
@@ -917,11 +950,7 @@ window.miracleMile.bootstrap = function() {
 
 	_.each(swarm.getMembers(), function(member) {
 	    var color = member.team;
-	    var swarmFrame = swarmSpriteMap[color].SOUTH[0];
-
-	    if (member.resources >= culture.RESOURCE_CAPACITY) {
-		swarmFrame = swarmSpriteMap[color].WALK_EAST[0];
-	    }
+	    var swarmFrame = getSwarmSprite(member);
 
 	    var swarmWidth = swarmFrame.width;
 	    var swarmHeight = swarmFrame.height;
@@ -942,7 +971,7 @@ window.miracleMile.bootstrap = function() {
 	    var struct = structList[i];
 	    var tileX = struct.xTile * TILE_IN_PX;
 	    var tileY = struct.yTile * TILE_IN_PX;
-	    var sprite = getSprite(struct);
+	    var sprite = getStructureSprite(struct);
 	    
 	    var drawX = tileX + sprite.draw_offset.left;
 	    var drawY = tileY + sprite.draw_offset.top;
