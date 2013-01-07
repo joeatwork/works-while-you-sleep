@@ -8,6 +8,61 @@
         background-color: white;
         border: 2px solid black;
     }
+
+    .game {
+	position: relative;
+    }
+
+    .technology {
+	font-size: 16px;
+	line-height: 20px;
+	background-color: white;
+	color: black;
+	padding: 20px;
+	width: 296px;
+	height: 598px;
+	position: absolute;
+	top: 0px;
+	border: 2px solid black;
+	text-transform: uppercase;
+	background-image: url('012_industry/technology_background.png');
+	background-position: bottom;
+	background-repeat: no-repeat;
+    }
+
+    .technology.white {
+	left: 2px;
+	background-color: #fff;
+    }
+
+    .technology.green {
+	left: 342px;
+	background-color: #6AFF92;
+    }
+
+    .technology.red {
+	left: 682px;
+	background-color: #FF8E94;
+    }
+
+    .discovery {
+        position: relative;
+	margin-top: 20px;
+	padding: 20px;
+	border: 2px solid black;
+	min-height: 225px;
+	background-color: white;
+	text-align: center;
+    }
+
+    .reward {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        text-align: right;
+        padding: 20px;
+    }
+
   </style>
 <!-- start Mixpanel --><script type="text/javascript">(function(d,c){var a,b,g,e;a=d.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===d.location.protocol?"https:":"http:")+'//api.mixpanel.com/site_media/js/api/mixpanel.2.js';b=d.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b);c._i=[];c.init=function(a,d,f){var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";g="disable track track_pageview track_links track_forms register register_once unregister identify name_tag set_config".split(" ");
 for(e=0;e<g.length;e++)(function(a){b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,0)))}})(g[e]);c._i.push([a,d,f])};window.mixpanel=c})(document,[]);
@@ -26,10 +81,33 @@ mixpanel.track('pageview', { page: 'miracle mile' });
     <h1>Works While You Sleep 2.2 : Miracle Mile</h1>
   </hgroup>  
 </header>
-<section>
+<section class="game">
   <div class="screen_area"
        ><canvas width="1024" height="640" id="screen_canvas"
 		></canvas></div>
+  <div class="technology white" style="display: none;">
+    <div>The Wizards of your Culture have Discovered:</div>
+    <div class="discovery">
+      <div class="accomplishment">Electrically-controlled device for
+	programmable weft cutting in gripper weaving looms!</div>
+      <div class="reward">+3 Gumption!</div>
+    </div>
+  </div>
+  <div class="technology green" style="display: none;">
+    <div>The Scientists of your Culture have Discovered:</div>
+    <div class="discovery">
+      <div class="accomplishment">Mayors!</div>
+      <div class="reward">+3 Alacrity!</div>
+    </div>
+  </div>
+  <div class="technology red" style="display: none;">
+    <div>The Gurus of your Culture have Discovered:</div>
+    <div class="discovery">
+      <div class="accomplishment">EatSmart Precision Digital Bathroom Scale
+	w/ Extra Large Backlit 3.5" Display and "Step-On" Technology!</div>
+      <div class="reward">+3 Verve!</div>
+    </div>
+  </div>
 </section>
 
 <section class="notes">
@@ -62,6 +140,7 @@ mixpanel.track('pageview', { page: 'miracle mile' });
 <script src="../js/v2.0/chorus.js"></script>
 <script src="../js/v2.0/spacemanager.js"></script>
 
+<script src="../js/data/inventions.js"></script>
 <script src="../js/levels/industry.js"></script>
 <script>
 $(document).ready(window.miracleMile.bootstrap);

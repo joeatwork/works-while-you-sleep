@@ -199,6 +199,7 @@ window.Culture = (function() {
 	this.structures = structures;
 	this.startRadius = 1;
 	this.maxSearchRadius = maxSearchRadius;
+	this.structuresCompleted = {};
     };
 
     Culture.prototype = {
@@ -351,6 +352,8 @@ window.Culture = (function() {
 		operations: operations
 	    };
 	}, // getGoal
+
+	triggerStructureComplete: function(structure) {},
 
 	_pickBuilding: function(site, member) {
 	    var model = this.structures.footprints.SMALL_TOWER;
@@ -524,6 +527,10 @@ window.Swarm = (function() {
 			    goal.found.resources += built;
 			    member.resources -= built;
 			    move = STAND_STILL;
+
+			    if (goal.found.resources >= goal.found.maxResources) {
+				this.culture.triggerStructureComplete(goal.found);
+			    }
    			}
 			else { // Mine
 			    var mined = Math.min(MINING_SPEED * timeElapsedMillis,
@@ -617,6 +624,12 @@ window.miracleMile.bootstrap = function() {
 
     var screenCanvas = $('#screen_canvas')[0];
     var renderGfx = screenCanvas.getContext('2d');
+
+    var teamSciences = {
+	white: window.data.inventions,
+	green: window.data.randomstuff,
+	red: window.data.products
+    };
 
     var structureSpriteMap = {
 	TREE: {
@@ -885,6 +898,29 @@ window.miracleMile.bootstrap = function() {
     var structures = new window.Structures(terrain);
     var culture = new window.Culture(terrain, structures,
 				     Math.min(TERRAIN_COLS, TERRAIN_ROWS));
+
+    culture.triggerStructureComplete = function(structure) {
+	var structureCode = structure.structuresHashCode;
+	if (!this.structuresCompleted[ structureCode ]) {
+	    this.structuresCompleted[ structureCode ] = true;
+	    var structureTeam = structure.team;
+
+	    var accomplishmentList = teamSciences[ structureTeam ];
+	    var accomplishment = accomplishmentList[ _.random(0, accomplishmentList.length - 1) ];
+
+	    var reward = window.data.qualities[ _.random(0, window.data.qualities.length - 1) ];
+
+	    var $notice = $('.technology.' + structureTeam);
+
+	    $notice.find('.accomplishment').text(accomplishment + "!");
+	    $notice.find('.reward').text('+2 ' + reward + '!');
+
+	    $notice.slideDown();
+	    setTimeout(function() {
+		$('.technology.' + structureTeam).slideUp();
+	    }, 3000);
+	}
+    };
 
     //////////////////////////////////////////
 
