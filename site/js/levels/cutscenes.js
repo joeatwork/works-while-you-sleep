@@ -46,7 +46,6 @@ window.cutscenes = (function() {
 					 } }
 				   ]);
 
-
 	    var asgard_pan =
 		new Timeline.Image(this.images.asgard,
 				   [
@@ -70,10 +69,59 @@ window.cutscenes = (function() {
 					     dx: 0, dy: 0, dw: 576, dh: 384,
 					     // Source coordinates
 					     sx: 2302, sy: 0, sw: 576, sh: 384
+					 } },
+				       { time: 28000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 0, dy: 0, dw: 576, dh: 384,
+					     // Source coordinates
+					     sx: 2302, sy: 0, sw: 576, sh: 384
 					 } }
 				   ]); // asgard_timeline
 
-	    this.timeline = new Timeline([ asgard_still, asgard_pan ]);
+	    var balcony_background =
+		new Timeline.Image(this.images.balcony,
+				   [
+				       { time: 28000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 0, dy: 0, dw: 576, dh: 384,
+					     // Source coordinates
+					     sx: 0, sy: 0, sw: 576, sh: 384
+					 } },
+				       { time: 35000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 0, dy: 0, dw: 576, dh: 384,
+					     // Source coordinates
+					     sx: 0, sy: 0, sw: 576, sh: 384
+					 } }
+				   ]);
+
+	    var hero_back =
+		new Timeline.Image(this.images.back_and_bolt,
+				   [
+				       { time: 28000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 192, dy: 188, dw: 48, dh: 128,
+					     // Source coordinates
+					     sx: 0, sy: 0, sw: 48, sh: 128
+					 } },
+				       { time: 35000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 192, dy: 188, dw: 48, dh: 128,
+					     // Source coordinates
+					     sx: 0, sy: 0, sw: 48, sh: 128
+					 } }
+				   ]);
+
+
+	    this.timeline = new Timeline([ asgard_still,
+					   asgard_pan,
+					   balcony_background,
+					   hero_back ]);
 	},
 
 	animate: function() {
@@ -108,6 +156,8 @@ window.cutscenes = (function() {
 
 	    self.withImg(loadManager, 'background', '013_cutscenes/viewscreen.png');
 	    self.withImg(loadManager, 'asgard', '013_cutscenes/001_asgard.png');
+	    self.withImg(loadManager, 'balcony', '013_cutscenes/balcony_in_space.png');
+	    self.withImg(loadManager, 'back_and_bolt', '013_cutscenes/back_and_bolt.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
