@@ -27,7 +27,7 @@ window.cutscenes = (function() {
 	SCREEN_HEIGHT: 384,
 
 	initTimeline: function() {
-	    var asgard_timeline =
+	    var asgard_still =
 		new Timeline.Image(this.images.asgard,
 				   [
 				       { time: 0,
@@ -37,14 +37,34 @@ window.cutscenes = (function() {
 					     // Source coordinates
 					     sx: 0, sy: 0, sw: 576, sh: 384
 					 } },
-				       { time: 5000,
+				       { time: 4000,
 					 properties: {
 					     // Canvas coordinates
 					     dx: 0, dy: 0, dw: 576, dh: 384,
 					     // Source coordinates
 					     sx: 0, sy: 0, sw: 576, sh: 384
+					 } }
+				   ]);
+
+
+	    var asgard_pan =
+		new Timeline.Image(this.images.asgard,
+				   [
+				       { time: 4000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 0, dy: 0, dw: 576, dh: 384,
+					     // Source coordinates
+					     sx: 576, sy: 0, sw: 576, sh: 384
 					 } },
-				       { time: 20000,
+				       { time: 6000,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 0, dy: 0, dw: 576, dh: 384,
+					     // Source coordinates
+					     sx: 576, sy: 0, sw: 576, sh: 384
+					 } },
+				       { time: 26000,
 					 properties: {
 					     // Canvas coordinates
 					     dx: 0, dy: 0, dw: 576, dh: 384,
@@ -53,7 +73,7 @@ window.cutscenes = (function() {
 					 } }
 				   ]); // asgard_timeline
 
-	    this.timeline = new Timeline([ asgard_timeline ]);
+	    this.timeline = new Timeline([ asgard_still, asgard_pan ]);
 	},
 
 	animate: function() {

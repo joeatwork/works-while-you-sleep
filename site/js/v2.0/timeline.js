@@ -1,3 +1,7 @@
+
+// Options
+//   - Don't clamp?  Simpler code, starts and ends.
+//   - End signals?
 window.timeline = (function() {
     'use strict';
 
@@ -24,10 +28,7 @@ window.timeline = (function() {
 	//     [ { time:time, properties:{...} } ]
 	// where properties are all number values
 	var self = this;
-
 	self.image = image;
-	self.lastFrameIx = -1;
-	self.lastTime = -1;
 
 	var earlyProps = {};
 	var lateProps = {};
@@ -36,6 +37,7 @@ window.timeline = (function() {
 	    _.extend(lateProps, keyFrame.properties);
 	});
 
+	// Artifical frames for use in computing intermediate values
 	keyFrames.unshift({ time: -1, properties: earlyProps });
 	keyFrames.push({ time: Number.POSITIVE_INFINITY, properties: lateProps });
 
@@ -44,8 +46,8 @@ window.timeline = (function() {
 	    var definedFrames = [];
 	    var undefinedFrames = [];
 
-	    _.each(self.frames, function(frame) {
-		if (_.has(frame, k)) {
+	    _.each(keyFrames, function(frame) {
+		if (_.has(frame.properties, k)) {
 		    definedFrames.push(frame);
 		} else {
 		    undefinedFrames.push(frame);
@@ -58,37 +60,45 @@ window.timeline = (function() {
 	    }); // Each undefined frame
 	}); // each key in the universe
 
+	// Get rid of artificial frames
+	keyFrames.shift();
+	keyFrames.pop();
+
 	self.frames = keyFrames;
+	self.beginTime = self.frames[0].time;
+	self.endTime = self.frames[ self.frames.length - 1 ].time;
     }; // Image()
 
     Timeline.Image.prototype.draw = function(time, context) {
 	var self = this;
 	var state = self._getState(this.frames, time);
 
-	context.drawImage(
-	    self.image,
-	    state.sx, state.sy, state.sw, state.sh,
-	    state.dx, state.dy, state.dw, state.dh
-	);
+	if (state) {
+	    context.drawImage(
+		self.image,
+		state.sx, state.sy, state.sw, state.sh,
+		state.dx, state.dy, state.dw, state.dh
+	    );
+	}
     };
 
     Timeline.Image.prototype._getState = function(frames, time) {
 	var self = this;
-	var insertPoint = _.sortedIndex(frames, { time: time }, 'time');
 
-	if (insertPoint > frames.length) {
-	    return self.frames[ frames.length - 1 ];
-	}
+	if (self.beginTime > time) return;
+	if (self.endTime < time) return;
 	// ELSE
 
-	var neighborBefore = self.frames[ insertPoint ];
+	var insertPoint = _.sortedIndex(frames, { time: time }, 'time');
+
+	var neighborBefore = frames[ insertPoint ];
 	var neighborAfter = neighborBefore;
 
-	if ((neighborAfter.time < time) && (insertPoint + 1 < self.frames.length)) {
-	    neighborAfter = self.frames[ insertPoint + 1 ];
+	if ((neighborAfter.time < time) && (insertPoint + 1 < frames.length)) {
+	    neighborAfter = frames[ insertPoint + 1 ];
 	}
 	else if ((neighborBefore.time > time) && (insertPoint - 1 >= 0)) {
-	    neighborBefore = self.frames[ insertPoint - 1 ];
+	    neighborBefore = frames[ insertPoint - 1 ];
 	}
 
 	var afterWeight = Math.max(time - neighborBefore.time, 1);
