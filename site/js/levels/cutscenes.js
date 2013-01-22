@@ -28,7 +28,7 @@ window.cutscenes = (function() {
 
 	initTimeline: function() {
 	    var asgard_still =
-		new Timeline.Image(this.images.asgard,
+		new Timeline.Interpolator(this.images.asgard,
 				   [
 				       { time: 0,
 					 properties: {
@@ -47,7 +47,7 @@ window.cutscenes = (function() {
 				   ]);
 
 	    var asgard_pan =
-		new Timeline.Image(this.images.asgard,
+		new Timeline.Interpolator(this.images.asgard,
 				   [
 				       { time: 4000,
 					 properties: {
@@ -80,7 +80,7 @@ window.cutscenes = (function() {
 				   ]); // asgard_timeline
 
 	    var balcony_background =
-		new Timeline.Image(this.images.balcony,
+		new Timeline.Interpolator(this.images.balcony,
 				   [
 				       { time: 28000,
 					 properties: {
@@ -99,7 +99,7 @@ window.cutscenes = (function() {
 				   ]);
 
 	    var hero_back =
-		new Timeline.Image(this.images.back_and_bolt,
+		new Timeline.Interpolator(this.images.back_and_bolt,
 				   [
 				       { time: 28000,
 					 properties: {
@@ -108,12 +108,26 @@ window.cutscenes = (function() {
 					     // Source coordinates
 					     sx: 0, sy: 0, sw: 48, sh: 128
 					 } },
-				       { time: 35000,
+				       { time: 30000,
 					 properties: {
 					     // Canvas coordinates
 					     dx: 192, dy: 188, dw: 48, dh: 128,
 					     // Source coordinates
 					     sx: 0, sy: 0, sw: 48, sh: 128
+					 } },
+				       { time: 30001, properties: { sx: 48 } },
+				       { time: 30030, properties: { sx: 48 } },
+				       { time: 30031, properties: { sx: 96 } },
+				       { time: 30060, properties: { sx: 96 } },
+				       { time: 30061, properties: { sx: 144 } },
+				       { time: 30090, properties: { sx: 144 } },
+				       { time: 30091, properties: { sx: 192 } },
+				       { time: 30180,
+					 properties: {
+					     // Canvas coordinates
+					     dx: 192, dy: -128, dw: 48, dh: 128,
+					     // Source coordinates
+					     sx: 192, sy: 0, sw: 48, sh: 128
 					 } }
 				   ]);
 
@@ -128,13 +142,12 @@ window.cutscenes = (function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
 
-	    this.renderGfx.drawImage(self.images.background, 0, 0);
-
 	    this.renderGfx.save();
 	    this.renderGfx.translate(this.SCREEN_X, this.SCREEN_Y);
 	    this.timeline.draw(time, this.renderGfx);
 	    this.renderGfx.restore();
 
+	    this.renderGfx.drawImage(self.images.background, 0, 0);
 	    requestAnimFrame(function() { self.animate() });
 	},
 

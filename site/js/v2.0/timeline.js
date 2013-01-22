@@ -22,7 +22,7 @@ window.timeline = (function() {
 	}
     };
 
-    Timeline.Image = function(image, keyFrames) {
+    Timeline.Interpolator = function(image, keyFrames) {
 	// image is an Image(),
 	// frames is a pre-sorted list of 
 	//     [ { time:time, properties:{...} } ]
@@ -54,9 +54,9 @@ window.timeline = (function() {
 		}
 	    }); // each frame
 
-	    _.each(undefinedFrames, function(undefinedFrame) {
-		var approx = self._getState(definedFrames, undefinedFrames.time);
-		_.defaults(undefinedFrame, approx);
+	    _.each(undefinedFrames, function(fixFrame) {
+		var approx = self._getState(definedFrames, fixFrame.time);
+		_.defaults(fixFrame.properties, approx);
 	    }); // Each undefined frame
 	}); // each key in the universe
 
@@ -69,7 +69,7 @@ window.timeline = (function() {
 	self.endTime = self.frames[ self.frames.length - 1 ].time;
     }; // Image()
 
-    Timeline.Image.prototype.draw = function(time, context) {
+    Timeline.Interpolator.prototype.draw = function(time, context) {
 	var self = this;
 	var state = self._getState(this.frames, time);
 
@@ -82,7 +82,7 @@ window.timeline = (function() {
 	}
     };
 
-    Timeline.Image.prototype._getState = function(frames, time) {
+    Timeline.Interpolator.prototype._getState = function(frames, time) {
 	var self = this;
 
 	if (self.beginTime > time) return;
