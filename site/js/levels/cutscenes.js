@@ -20,6 +20,40 @@ window.cutscenes = (function() {
 
     var Timeline = window.timeline.Timeline;
 
+    var spriteLoop = function(begin_time,
+			      end_time,
+			      frame_count,
+			      sprite_count,
+			      sprite_width) {
+	var duration = end_time - begin_time;
+	var frame_time = duration / frame_count;
+
+	var ret = [];
+	for (var frame = 0; frame < frame_count; frame++) {
+	    var lastFrame = _.last(ret);
+	    var time = begin_time + (frame * frame_time);
+
+	    if (lastFrame) {
+		ret[ ret.length ] = {
+		    time: time - 1,
+		    properties: _.clone(lastFrame.properties)
+		}
+	    }
+
+	    var next_offset = sprite_width * ( frame % sprite_count);
+	    ret[ ret.length ] = {
+		time: time,
+		properties: { sx: next_offset }
+	    };
+	}
+
+	if (ret.length > 1) {
+	    ret.pop(); // Drop a useless final frame
+	}
+
+	return ret;
+    };
+
     return {
 	SCREEN_X: 144,
 	SCREEN_Y: 68,
@@ -138,6 +172,7 @@ window.cutscenes = (function() {
 	    };
 
 	    var landfall = new Timeline.Interpolator(this.images.landfall, [
+		// Dark
 		{ time: 31100,
 		  properties: {
 		      // Canvas coordinates
@@ -152,6 +187,7 @@ window.cutscenes = (function() {
 		      // Source coordinates
 		      sx: 0, sy: 0, sw: 576, sh: 384
 		  } },
+		// Flash
 		{ time: 33101,
 		  properties: {
 		      // Canvas coordinates
@@ -159,14 +195,45 @@ window.cutscenes = (function() {
 		      // Source coordinates
 		      sx: 576, sy: 0, sw: 576, sh: 384
 		  } },
-		{ time: 33300,
+		{ time: 33200,
 		  properties: {
 		      // Canvas coordinates
 		      dx: 0, dy: 0, dw: 576, dh: 384,
 		      // Source coordinates
 		      sx: 576, sy: 0, sw: 576, sh: 384
 		  } },
+		// Dark
+		{ time: 33201,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33300,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		// Flash
 		{ time: 33301,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 576, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33600,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 576, sy: 0, sw: 576, sh: 384
+		  } },
+		// Dark
+		{ time: 33601,
 		  properties: {
 		      // Canvas coordinates
 		      dx: 0, dy: 0, dw: 576, dh: 384,
@@ -182,17 +249,35 @@ window.cutscenes = (function() {
 		  } }
 	    ]);
 
+	    var twinkleFrames = spriteLoop(31600, 33100, 15, 3, 10);
+	    _.extend(twinkleFrames[0].properties, {
+		// Canvas coordinates
+		dx: 283, dy: 120, dw: 10, dh: 10,
+		// Source coordinates
+		/* no sx */ sy: 0, sw: 10, sh: 10
+	    });
+
+	    _.extend(_.last(twinkleFrames).properties, {
+		// Canvas coordinates
+		dx: 283, dy: 255, dw: 10, dh: 10,
+		// Source coordinates
+		/* no sx */ sy: 0, sw: 10, sh: 10
+	    });
+
+	    var twinkle = new Timeline.Interpolator(this.images.twinkle, twinkleFrames);
 	    this.timeline = new Timeline([ asgard_still,
 					   asgard_pan,
 					   balcony_background,
 					   hero_back,
 					   black_bg1,
-					   landfall ]);
+					   landfall,
+					   twinkle ]);
 	},
 
 	animate: function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
+	    time = time + 31000; // TODO DEBUG ONLY
 
 	    this.renderGfx.save();
 	    this.renderGfx.translate(this.SCREEN_X, this.SCREEN_Y);
@@ -224,6 +309,7 @@ window.cutscenes = (function() {
 	    self.withImg(loadManager, 'balcony', '013_cutscenes/balcony_in_space.png');
 	    self.withImg(loadManager, 'back_and_bolt', '013_cutscenes/back_and_bolt.png');
 	    self.withImg(loadManager, 'landfall', '013_cutscenes/002_landfall.png');
+	    self.withImg(loadManager, 'twinkle', '013_cutscenes/twinkle_10px.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
