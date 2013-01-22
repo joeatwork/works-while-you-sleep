@@ -74,12 +74,16 @@ window.timeline = (function() {
 	var state = self._getState(this.frames, time);
 
 	if (state) {
-	    context.drawImage(
-		self.image,
-		state.sx, state.sy, state.sw, state.sh,
-		state.dx, state.dy, state.dw, state.dh
-	    );
+	    self.render(state, context);
 	}
+    };
+
+    Timeline.Interpolator.prototype.render = function(state, context) {
+	context.drawImage(
+	    this.image,
+	    state.sx, state.sy, state.sw, state.sh,
+	    state.dx, state.dy, state.dw, state.dh
+	);
     };
 
     Timeline.Interpolator.prototype._getState = function(frames, time) {

@@ -28,114 +28,166 @@ window.cutscenes = (function() {
 
 	initTimeline: function() {
 	    var asgard_still =
-		new Timeline.Interpolator(this.images.asgard,
-				   [
-				       { time: 0,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 576, sh: 384
-					 } },
-				       { time: 4000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 576, sh: 384
-					 } }
-				   ]);
+		new Timeline.Interpolator(this.images.asgard, [
+		    { time: 0,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 576, sh: 384
+		      } },
+		    { time: 4000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 576, sh: 384
+		      } }
+		]);
 
 	    var asgard_pan =
-		new Timeline.Interpolator(this.images.asgard,
-				   [
-				       { time: 4000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 576, sy: 0, sw: 576, sh: 384
-					 } },
-				       { time: 6000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 576, sy: 0, sw: 576, sh: 384
-					 } },
-				       { time: 26000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 2302, sy: 0, sw: 576, sh: 384
-					 } },
-				       { time: 28000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 2302, sy: 0, sw: 576, sh: 384
-					 } }
-				   ]); // asgard_timeline
+		new Timeline.Interpolator(this.images.asgard, [
+		    { time: 4000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 576, sy: 0, sw: 576, sh: 384
+		      } },
+		    { time: 6000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 576, sy: 0, sw: 576, sh: 384
+		      } },
+		    { time: 26000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 2302, sy: 0, sw: 576, sh: 384
+		      } },
+		    { time: 28000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 2302, sy: 0, sw: 576, sh: 384
+		      } }
+		]); // asgard_timeline
 
 	    var balcony_background =
-		new Timeline.Interpolator(this.images.balcony,
-				   [
-				       { time: 28000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 576, sh: 384
-					 } },
-				       { time: 35000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 0, dy: 0, dw: 576, dh: 384,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 576, sh: 384
-					 } }
-				   ]);
+		new Timeline.Interpolator(this.images.balcony, [
+		    { time: 28000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 576, sh: 384
+		      } },
+		    { time: 31000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 0, dy: 0, dw: 576, dh: 384,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 576, sh: 384
+		      } }
+		]);
 
 	    var hero_back =
-		new Timeline.Interpolator(this.images.back_and_bolt,
-				   [
-				       { time: 28000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 192, dy: 188, dw: 48, dh: 128,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 48, sh: 128
-					 } },
-				       { time: 30000,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 192, dy: 188, dw: 48, dh: 128,
-					     // Source coordinates
-					     sx: 0, sy: 0, sw: 48, sh: 128
-					 } },
-				       { time: 30001, properties: { sx: 48 } },
-				       { time: 30030, properties: { sx: 48 } },
-				       { time: 30031, properties: { sx: 96 } },
-				       { time: 30060, properties: { sx: 96 } },
-				       { time: 30061, properties: { sx: 144 } },
-				       { time: 30090, properties: { sx: 144 } },
-				       { time: 30091, properties: { sx: 192 } },
-				       { time: 30180,
-					 properties: {
-					     // Canvas coordinates
-					     dx: 192, dy: -128, dw: 48, dh: 128,
-					     // Source coordinates
-					     sx: 192, sy: 0, sw: 48, sh: 128
-					 } }
-				   ]);
+		new Timeline.Interpolator(this.images.back_and_bolt, [
+		    { time: 28000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 192, dy: 188, dw: 48, dh: 128,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 48, sh: 128
+		      } },
+		    { time: 30000,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 192, dy: 188, dw: 48, dh: 128,
+			  // Source coordinates
+			  sx: 0, sy: 0, sw: 48, sh: 128
+		      } },
+		    { time: 30001, properties: { sx: 48 } },
+		    { time: 30030, properties: { sx: 48 } },
+		    { time: 30031, properties: { sx: 96 } },
+		    { time: 30060, properties: { sx: 96 } },
+		    { time: 30061, properties: { sx: 144 } },
+		    { time: 30090, properties: { sx: 144 } },
+		    { time: 30091, properties: { sx: 192 } },
+		    { time: 30180,
+		      properties: {
+			  // Canvas coordinates
+			  dx: 192, dy: -128, dw: 48, dh: 128,
+			  // Source coordinates
+			  sx: 192, sy: 0, sw: 48, sh: 128
+		      } }
+		]);
 
+
+	    var black_bg1 = new Timeline.Interpolator(null, [
+		{ time: 31000, properties: {} },
+		{ time: 31100, properties: {} }
+		]);
+	    black_bg1.render = function(state, context) {
+		context.fillstyle = "black";
+		context.fillRect(0, 0, 576, 384);
+	    };
+
+	    var landfall = new Timeline.Interpolator(this.images.landfall, [
+		{ time: 31100,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33100,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33101,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 576, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33300,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 576, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 33301,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 35000,
+		  properties: {
+		      // Canvas coordinates
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      // Source coordinates
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } }
+	    ]);
 
 	    this.timeline = new Timeline([ asgard_still,
 					   asgard_pan,
 					   balcony_background,
-					   hero_back ]);
+					   hero_back,
+					   black_bg1,
+					   landfall ]);
 	},
 
 	animate: function() {
@@ -171,6 +223,7 @@ window.cutscenes = (function() {
 	    self.withImg(loadManager, 'asgard', '013_cutscenes/001_asgard.png');
 	    self.withImg(loadManager, 'balcony', '013_cutscenes/balcony_in_space.png');
 	    self.withImg(loadManager, 'back_and_bolt', '013_cutscenes/back_and_bolt.png');
+	    self.withImg(loadManager, 'landfall', '013_cutscenes/002_landfall.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
