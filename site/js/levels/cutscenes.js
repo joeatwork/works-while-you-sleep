@@ -20,6 +20,16 @@ window.cutscenes = (function() {
 
     var Timeline = window.timeline.Timeline;
 
+    var Blackout = function(keyframes) {
+	Timeline.Interpolator.call(this, null, keyframes);
+    };
+
+    Blackout.prototype = _.extend({}, Timeline.Interpolator.prototype);
+    Blackout.prototype.render = function(state, context) {
+	context.fillstyle = "black";
+	context.fillRect(state.dx, state.dy, state.dw, state.dh);
+    };
+
     var spriteLoop = function(begin_time,
 			      end_time,
 			      frame_count,
@@ -161,15 +171,10 @@ window.cutscenes = (function() {
 		      } }
 		]);
 
-
-	    var black_bg1 = new Timeline.Interpolator(null, [
-		{ time: 31000, properties: {} },
-		{ time: 31100, properties: {} }
-		]);
-	    black_bg1.render = function(state, context) {
-		context.fillstyle = "black";
-		context.fillRect(0, 0, 576, 384);
-	    };
+	    var black_bg1 = new Blackout([
+		{ time: 31000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
+		{ time: 31100, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+	    ]);
 
 	    var landfall = new Timeline.Interpolator(this.images.landfall, [
 		// Dark
@@ -265,19 +270,69 @@ window.cutscenes = (function() {
 	    });
 
 	    var twinkle = new Timeline.Interpolator(this.images.twinkle, twinkleFrames);
+
+	    var black_bg2 = new Blackout([
+		{ time: 35000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
+		{ time: 39000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+	    ]);
+
+	    var white_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
+		{ time: 35500,
+		  properties: {
+		      dx: 256, dy: 192, dw: 64, dh: 128,
+		      sx: 0, sy: 0, sw: 64, sh: 128
+		  } },
+		{ time: 39000,
+		  properties: {
+		      dx: 256, dy: 192, dw: 64, dh: 128,
+		      sx: 0, sy: 0, sw: 64, sh: 128
+		  } }
+	    ]);
+
+	    var green_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
+		{ time: 36000,
+		  properties: {
+		      dx: 208, dy: 176, dw: 64, dh: 128,
+		      sx: 0, sy: 128, sw: 64, sh: 128
+		  } },
+		{ time: 39000,
+		  properties: {
+		      dx: 208, dy: 176, dw: 64, dh: 128,
+		      sx: 0, sy: 128, sw: 64, sh: 128
+		  } }
+	    ]);
+
+	    var red_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
+		{ time: 36500,
+		  properties: {
+		      dx: 304, dy: 176, dw: 64, dh: 128,
+		      sx: 0, sy: 256, sw: 64, sh: 128
+		  } },
+		{ time: 39000,
+		  properties: {
+		      dx: 304, dy: 176, dw: 64, dh: 128,
+		      sx: 0, sy: 256, sw: 64, sh: 128
+		  } }
+	    ]);
+
 	    this.timeline = new Timeline([ asgard_still,
 					   asgard_pan,
 					   balcony_background,
 					   hero_back,
 					   black_bg1,
 					   landfall,
-					   twinkle ]);
+					   twinkle,
+					   black_bg2,
+					   green_landing,
+					   red_landing,
+					   white_landing
+					 ]);
 	},
 
 	animate: function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
-	    time = time + 31000; // TODO DEBUG ONLY
+	    time = time + 34000; // DEBUG
 
 	    this.renderGfx.save();
 	    this.renderGfx.translate(this.SCREEN_X, this.SCREEN_Y);
@@ -310,6 +365,8 @@ window.cutscenes = (function() {
 	    self.withImg(loadManager, 'back_and_bolt', '013_cutscenes/back_and_bolt.png');
 	    self.withImg(loadManager, 'landfall', '013_cutscenes/002_landfall.png');
 	    self.withImg(loadManager, 'twinkle', '013_cutscenes/twinkle_10px.png');
+	    // 64 x 128
+	    self.withImg(loadManager, 'front_and_bolts', '013_cutscenes/front_and_bolts.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
