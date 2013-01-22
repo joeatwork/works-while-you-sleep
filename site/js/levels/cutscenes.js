@@ -277,12 +277,24 @@ window.cutscenes = (function() {
 	    ]);
 
 	    var white_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
-		{ time: 35500,
+		{ time: 36000,
+		  properties: {
+		      dx: 256, dy: 0, dw: 64, dh: 128,
+		      sx: 256, sy: 0, sw: 64, sh: 128
+		  } },
+		{ time: 36030, properties: { sx: 256 } },
+ 		{ time: 36031, properties: { sx: 192 } },
+ 		{ time: 36060, properties: { sx: 192 } },
+		{ time: 36061, properties: { sx: 128 } },
+		{ time: 36090, properties: { sx: 128 } },
+		{ time: 36091, properties: { sx:  64 } },
+		{ time: 36120, properties: { sx:  64 } },
+		{ time: 36121,
 		  properties: {
 		      dx: 256, dy: 192, dw: 64, dh: 128,
 		      sx: 0, sy: 0, sw: 64, sh: 128
 		  } },
-		{ time: 39000,
+		{ time: 40000,
 		  properties: {
 		      dx: 256, dy: 192, dw: 64, dh: 128,
 		      sx: 0, sy: 0, sw: 64, sh: 128
@@ -290,12 +302,24 @@ window.cutscenes = (function() {
 	    ]);
 
 	    var green_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
-		{ time: 36000,
+		{ time: 37000,
+		  properties: {
+		      dx: 208, dy: 0, dw: 64, dh: 128,
+		      sx: 256, sy: 128, sw: 64, sh: 128
+		  } },
+		{ time: 37030, properties: { sx: 256 } },
+ 		{ time: 37031, properties: { sx: 192 } },
+ 		{ time: 37060, properties: { sx: 192 } },
+		{ time: 37061, properties: { sx: 128 } },
+		{ time: 37090, properties: { sx: 128 } },
+		{ time: 37091, properties: { sx:  64 } },
+		{ time: 37120, properties: { sx:  64 } },
+		{ time: 37121,
 		  properties: {
 		      dx: 208, dy: 176, dw: 64, dh: 128,
 		      sx: 0, sy: 128, sw: 64, sh: 128
 		  } },
-		{ time: 39000,
+		{ time: 40000,
 		  properties: {
 		      dx: 208, dy: 176, dw: 64, dh: 128,
 		      sx: 0, sy: 128, sw: 64, sh: 128
@@ -303,12 +327,24 @@ window.cutscenes = (function() {
 	    ]);
 
 	    var red_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
-		{ time: 36500,
+		{ time: 37200,
+		  properties: {
+		      dx: 304, dy: 0, dw: 64, dh: 128,
+		      sx: 256, sy: 256, sw: 64, sh: 128
+		  } },
+		{ time: 37230, properties: { sx: 256 } },
+ 		{ time: 37231, properties: { sx: 192 } },
+ 		{ time: 37260, properties: { sx: 192 } },
+		{ time: 37261, properties: { sx: 128 } },
+		{ time: 37290, properties: { sx: 128 } },
+		{ time: 37291, properties: { sx:  64 } },
+		{ time: 37320, properties: { sx:  64 } },
+		{ time: 37321,
 		  properties: {
 		      dx: 304, dy: 176, dw: 64, dh: 128,
 		      sx: 0, sy: 256, sw: 64, sh: 128
 		  } },
-		{ time: 39000,
+		{ time: 40000,
 		  properties: {
 		      dx: 304, dy: 176, dw: 64, dh: 128,
 		      sx: 0, sy: 256, sw: 64, sh: 128
