@@ -273,7 +273,7 @@ window.cutscenes = (function() {
 
 	    var black_bg2 = new Blackout([
 		{ time: 35000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
-		{ time: 39000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+		{ time: 50000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
 	    ]);
 
 	    var white_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
@@ -351,6 +351,65 @@ window.cutscenes = (function() {
 		  } }
 	    ]);
 
+	    var white_portrait = new Timeline.Interpolator(this.images.portraits, [
+		{ time: 40000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 42000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 42001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 200,
+		      sx: 0, sy: 0, sw: 576, sh: 200
+		  } },
+		{ time: 50000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 200,
+		      sx: 0, sy: 0, sw: 576, sh: 200
+		  } },
+	    ]);
+
+	    var green_portrait = new Timeline.Interpolator(this.images.portraits, [
+		{ time: 42001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 384, sw: 576, sh: 384
+		  } },
+		{ time: 44000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 384, sw: 576, sh: 384
+		  } },
+		{ time: 44001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 230,
+		      sx: 0, sy: 384, sw: 576, sh: 230
+		  } },
+		{ time: 50000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 230,
+		      sx: 0, sy: 384, sw: 576, sh: 230
+		  } },
+	    ]);
+
+	    var red_portrait = new Timeline.Interpolator(this.images.portraits, [
+		{ time: 44000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 768, sw: 576, sh: 384
+		  } },
+		{ time: 50000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 768, sw: 576, sh: 384
+		  } }
+	    ]);
+
 	    this.timeline = new Timeline([ asgard_still,
 					   asgard_pan,
 					   balcony_background,
@@ -361,14 +420,17 @@ window.cutscenes = (function() {
 					   black_bg2,
 					   green_landing,
 					   red_landing,
-					   white_landing
+					   white_landing,
+					   white_portrait,
+					   green_portrait,
+					   red_portrait
 					 ]);
 	},
 
 	animate: function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
-	    time = time + 34000; // DEBUG
+	    time = time + 39000; // DEBUG
 
 	    this.renderGfx.save();
 	    this.renderGfx.translate(this.SCREEN_X, this.SCREEN_Y);
@@ -403,6 +465,7 @@ window.cutscenes = (function() {
 	    self.withImg(loadManager, 'twinkle', '013_cutscenes/twinkle_10px.png');
 	    // 64 x 128
 	    self.withImg(loadManager, 'front_and_bolts', '013_cutscenes/front_and_bolts.png');
+	    self.withImg(loadManager, 'portraits', '013_cutscenes/portraits.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
