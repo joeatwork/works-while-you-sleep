@@ -273,7 +273,7 @@ window.cutscenes = (function() {
 
 	    var black_bg2 = new Blackout([
 		{ time: 35000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
-		{ time: 50000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+		{ time: 46000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
 	    ]);
 
 	    var white_landing = new Timeline.Interpolator(this.images.front_and_bolts, [
@@ -367,7 +367,7 @@ window.cutscenes = (function() {
 		      dx: 0, dy: 0, dw: 576, dh: 200,
 		      sx: 0, sy: 0, sw: 576, sh: 200
 		  } },
-		{ time: 50000,
+		{ time: 46000,
 		  properties: {
 		      dx: 0, dy: 0, dw: 576, dh: 200,
 		      sx: 0, sy: 0, sw: 576, sh: 200
@@ -390,7 +390,7 @@ window.cutscenes = (function() {
 		      dx: 0, dy: 0, dw: 576, dh: 230,
 		      sx: 0, sy: 384, sw: 576, sh: 230
 		  } },
-		{ time: 50000,
+		{ time: 46000,
 		  properties: {
 		      dx: 0, dy: 0, dw: 576, dh: 230,
 		      sx: 0, sy: 384, sw: 576, sh: 230
@@ -403,12 +403,122 @@ window.cutscenes = (function() {
 		      dx: 0, dy: 0, dw: 576, dh: 384,
 		      sx: 0, sy: 768, sw: 576, sh: 384
 		  } },
-		{ time: 50000,
+		{ time: 46000,
 		  properties: {
 		      dx: 0, dy: 0, dw: 576, dh: 384,
 		      sx: 0, sy: 768, sw: 576, sh: 384
 		  } }
 	    ]);
+
+	    var wonders = new Timeline.Interpolator(this.images.wonders, [
+		{ time: 46000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 50000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 0, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 55000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 2060, sy: 0, sw: 576, sh: 384
+		  } },
+
+		// Wonders frames
+		{ time: 55001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 2636, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 55500,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 2636, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 55501,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3212, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 56000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3212, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 56001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3788, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 56500,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3788, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 56501,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 4364, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 57000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 4364, sy: 0, sw: 576, sh: 384
+		  } },
+		
+		// Wonders frames second loop
+
+		{ time: 57001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 2636, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 57500,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 2636, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 57501,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3212, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 58000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3212, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 58001,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3788, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 58500,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 3788, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 58501,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 4364, sy: 0, sw: 576, sh: 384
+		  } },
+		{ time: 59000,
+		  properties: {
+		      dx: 0, dy: 0, dw: 576, dh: 384,
+		      sx: 4364, sy: 0, sw: 576, sh: 384
+		  } },
+
+	    ]);
+
+	    var black_bg3 = new Blackout([
+		{ time: 59000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
+		{ time: 60000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+	    ]);
+
 
 	    this.timeline = new Timeline([ asgard_still,
 					   asgard_pan,
@@ -423,14 +533,16 @@ window.cutscenes = (function() {
 					   white_landing,
 					   white_portrait,
 					   green_portrait,
-					   red_portrait
+					   red_portrait,
+					   wonders,
+					   black_bg3
 					 ]);
 	},
 
 	animate: function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
-	    time = time + 39000; // DEBUG
+	    // time = time + 40000; // DEBUG
 
 	    this.renderGfx.save();
 	    this.renderGfx.translate(this.SCREEN_X, this.SCREEN_Y);
@@ -466,6 +578,7 @@ window.cutscenes = (function() {
 	    // 64 x 128
 	    self.withImg(loadManager, 'front_and_bolts', '013_cutscenes/front_and_bolts.png');
 	    self.withImg(loadManager, 'portraits', '013_cutscenes/portraits.png');
+	    self.withImg(loadManager, 'wonders', '013_cutscenes/wonders.png');
 
 	    loadManager.setOnComplete(function() {
 		self.initTimeline();
