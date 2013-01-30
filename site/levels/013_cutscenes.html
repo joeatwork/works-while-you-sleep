@@ -6,9 +6,37 @@
   <style>
     .screen_area {
         background-color: white;
-        background-image: url('013_cutscenes/wide_viewscreen_bg.png');
         border: 2px solid black;
         text-align: center;
+        position: relative;
+        height: 576px;
+        width: 1020px; // - 4px borders
+    }
+
+    .screen_area canvas {
+        position: absolute;
+        top: 0;
+        left: 78px;
+    }
+
+    .left_bookend {
+        border-right: 2px solid black;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 76px;
+        height: 576px;
+    }
+
+    .right_bookend {
+        border-left: 2px solid black;
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 76px;
+        height: 576px;
     }
 
     .game {
@@ -34,8 +62,9 @@ mixpanel.track('pageview', { page: 'Cutscene' });
 </header>
 <section class="game">
   <div class="screen_area"
-       ><canvas width="864" height="576" id="screen_canvas"
-		></canvas></div>
+       ><img src="013_cutscenes/santa_bookend.png" class="left_bookend">
+        <canvas width="864" height="576" id="screen_canvas"></canvas>
+	<img src="013_cutscenes/santa_bookend_right.png" class="right_bookend"></div>
 </section>
 
 <section class="notes">
