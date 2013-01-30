@@ -22,6 +22,28 @@ window.timeline = (function() {
 	}
     };
 
+    Timeline.Still = function(image, properties, startTime, endTime) {
+	this.image = image;
+	this.properties = properties;
+	this.startTime = startTime;
+	this.endTime = endTime;
+    };
+
+    Timeline.Still.prototype.draw = function(time, context) {
+	if (this.startTime && (time < this.startTime)) return; // Too early
+	if (this.endTime && (time > this.endTime)) return; // Too late
+	// ELSE
+	this.render(this.properties, context);
+    };
+
+    Timeline.Still.prototype.render = function(state, context) {
+	context.drawImage(
+	    this.image,
+	    state.sx, state.sy, state.sw, state.sh,
+	    state.dx, state.dy, state.dw, state.dh
+	);
+    };
+
     Timeline.Interpolator = function(image, keyFrames) {
 	// image is an Image(),
 	// frames is a pre-sorted list of 
