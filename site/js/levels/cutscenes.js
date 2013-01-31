@@ -53,9 +53,9 @@ window.cutscenes = (function() {
 
     var spriteLoop = function(begin_time,
 			      end_time,
-			      frame_count,
-			      sprite_count,
-			      sprite_width) {
+			      frame_count,  // Total frames to show
+			      sprite_count, // number of frames in one cycle
+			      sprite_width) { // Width in px of one frame
 	var duration = end_time - begin_time;
 	var frame_time = duration / frame_count;
 
@@ -90,6 +90,34 @@ window.cutscenes = (function() {
 	SCREEN_HEIGHT: 384,
 
 	initTimeline: function() {
+
+	    // THIS TOTALLY DOESNT WORK
+	    // OFFSET BY 216
+	    // var astronaut_walk = spriteLoop(0, 6000, 10, 3, 24);
+	    // _.each(astronaut_walk, function(frame) {
+	    // 	frame.sx = frame.sx + 216;
+	    // });
+
+	    // var white_walk_frames = [
+	    // 	{ time: 0,
+	    // 	  properties: { dx: 0, dy: 600, dw: 24, dh: 32,
+	    // 			sx: 216, sy: 0, sw: 24, sh: 32 } }
+	    // ];
+
+	    // white_walk_frames = white_walk_frames.concat(astronaut_walk);
+
+	    // white_walk_frames.push(
+	    // 	{ time: 6000,
+	    // 	  properties: { dx: 560, dy: 600, dw: 24, dh: 32,
+	    // 			sx: 216, sy: 0, sw: 24, sh: 32 } }
+	    // ); 
+
+	    // var white_walk = new Timeline.Interpolator(this.images.smallSprites,
+	    // 					       white_walk_frames);
+	    // white_walk.watch = true;
+		    
+	    // END TOTALLY DOESNT WORK
+
 	    var asgard_still =
 		new Timeline.Interpolator(this.images.asgard, [
 		    { time: 0,
@@ -550,24 +578,25 @@ window.cutscenes = (function() {
 
 	    var recursor = new Recursor(null, 61000);
 
-	    this.timeline = new Timeline([ asgard_still,
-					   asgard_pan,
-					   balcony_background,
-					   hero_back,
-					   black_bg1,
-					   landfall,
-					   twinkle,
-					   black_bg2,
-					   green_landing,
-					   red_landing,
-					   white_landing,
-					   white_portrait,
-					   green_portrait,
-					   red_portrait,
-					   wonders,
-					   recursor_screen,
-					   recursor
-					 ]);
+	    this.timeline = new Timeline([ 
+		asgard_still,
+		asgard_pan,
+		balcony_background,
+		hero_back,
+		black_bg1,
+		landfall,
+		twinkle,
+		black_bg2,
+		green_landing,
+		red_landing,
+		white_landing,
+		white_portrait,
+		green_portrait,
+		red_portrait,
+		wonders,
+		recursor_screen,
+		recursor
+	    ]);
 
 	    recursor.timeline = this.timeline;
 	},
@@ -575,14 +604,14 @@ window.cutscenes = (function() {
 	animate: function() {
 	    var self = this;
 	    var time = Date.now() - this.t0;
-	    // time = time + 40000; // DEBUG
+	    time = time + 61001; // Start at the screen
 
 	    this.renderGfx.save();
-	    this.renderGfx.translate(SCREEN_X, SCREEN_Y);
+	    this.renderGfx.scale(1.5, 1.5);
 	    this.timeline.draw(time, this.renderGfx);
 	    this.renderGfx.restore();
 
-	    this.renderGfx.drawImage(self.images.background, 0, 0);
+	    // this.renderGfx.drawImage(self.images.background, 0, 0);
 	    requestAnimFrame(function() { self.animate() });
 	},
 
@@ -603,6 +632,7 @@ window.cutscenes = (function() {
 	    self.renderGfx = self.screenCanvas.getContext('2d');
 
 	    self.withImg(loadManager, 'background', '013_cutscenes/viewscreen.png');
+	    self.withImg(loadManager, 'smallSprites', 'sprites/spaceman_24x32_tiny.png');
 	    self.withImg(loadManager, 'asgard', '013_cutscenes/001_asgard.png');
 	    self.withImg(loadManager, 'balcony', '013_cutscenes/balcony_in_space.png');
 	    self.withImg(loadManager, 'back_and_bolt', '013_cutscenes/back_and_bolt.png');
