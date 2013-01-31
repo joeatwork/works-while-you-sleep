@@ -91,32 +91,105 @@ window.cutscenes = (function() {
 
 	initTimeline: function() {
 
-	    // THIS TOTALLY DOESNT WORK
-	    // OFFSET BY 216
-	    // var astronaut_walk = spriteLoop(0, 6000, 10, 3, 24);
-	    // _.each(astronaut_walk, function(frame) {
-	    // 	frame.sx = frame.sx + 216;
-	    // });
+	    var white_walk_frames = [];
+	    var green_walk_frames = [];
+	    var red_walk_frames = [];
 
-	    // var white_walk_frames = [
-	    // 	{ time: 0,
-	    // 	  properties: { dx: 0, dy: 600, dw: 24, dh: 32,
-	    // 			sx: 216, sy: 0, sw: 24, sh: 32 } }
-	    // ];
+	    var astronaut_walk = spriteLoop(61000, 70000, 40, 3, 24);
+	    _.each(astronaut_walk, function(frame) {
+	    	frame.properties.sx = frame.properties.sx + 216;
+		white_walk_frames.push({ time: frame.time, properties: _.clone(frame.properties) });
+		green_walk_frames.push({ time: frame.time, properties: _.clone(frame.properties) });
+		red_walk_frames.push({ time: frame.time, properties: _.clone(frame.properties) });
+	    });
 
-	    // white_walk_frames = white_walk_frames.concat(astronaut_walk);
+	    var walk_first = astronaut_walk[0];
+	    var walk_last = _.last(astronaut_walk);
 
-	    // white_walk_frames.push(
-	    // 	{ time: 6000,
-	    // 	  properties: { dx: 560, dy: 600, dw: 24, dh: 32,
-	    // 			sx: 216, sy: 0, sw: 24, sh: 32 } }
-	    // ); 
+	    white_walk_frames[0] = {
+		time: walk_first.time,
+		properties: _.extend({
+		    dx: 0, dy: 350, dw: 24, dh: 32,
+		    sy: 0, sw: 24, sh: 32
+		}, walk_first.properties)
+	    };
 
-	    // var white_walk = new Timeline.Interpolator(this.images.smallSprites,
-	    // 					       white_walk_frames);
-	    // white_walk.watch = true;
-		    
-	    // END TOTALLY DOESNT WORK
+	    white_walk_frames[ white_walk_frames.length - 1 ] = {
+		time: walk_last.time,
+		properties: _.extend({
+		    dx: 360, dy: 350, dw: 24, dh: 32,
+		    sy: 0, sw: 24, sh: 32
+		}, walk_last.properties)
+	    };
+
+	    var white_stand_time = _.last(white_walk_frames).time;
+	    var white_stance = _.clone(_.last(white_walk_frames).properties);
+	    white_stance.sx = 24 * 4;
+
+	    var white_walk = new Timeline.Interpolator(this.images.smallSprites,
+	    					       white_walk_frames);
+
+	    var white_stand = new Timeline.Still(this.images.smallSprites,
+						 white_stance,
+						 white_stand_time,
+						 null);
+						 
+	    green_walk_frames[0] = {
+		time: walk_first.time,
+		properties: _.extend({
+		    dx: -80, dy: 350, dw: 24, dh: 32,
+		    sy: 32, sw: 24, sh: 32
+		}, walk_first.properties)
+	    };
+
+	    green_walk_frames[ green_walk_frames.length - 1 ] = {
+		time: walk_last.time,
+		properties: _.extend({
+		    dx: 280, dy: 350, dw: 24, dh: 32,
+		    sy: 32, sw: 24, sh: 32
+		}, walk_last.properties)
+	    };
+
+	    var green_stand_time = _.last(green_walk_frames).time;
+	    var green_stance = _.clone(_.last(green_walk_frames).properties);
+	    green_stance.sx = 24 * 4;
+
+	    var green_walk = new Timeline.Interpolator(this.images.smallSprites,
+	    					       green_walk_frames);
+
+	    var green_stand = new Timeline.Still(this.images.smallSprites,
+						 green_stance,
+						 green_stand_time,
+						 null);
+
+						 
+	    red_walk_frames[0] = {
+		time: walk_first.time,
+		properties: _.extend({
+		    dx: -160, dy: 350, dw: 24, dh: 32,
+		    sy: 64, sw: 24, sh: 32
+		}, walk_first.properties)
+	    };
+
+	    red_walk_frames[ red_walk_frames.length - 1 ] = {
+		time: walk_last.time,
+		properties: _.extend({
+		    dx: 200, dy: 350, dw: 24, dh: 32,
+		    sy: 64, sw: 24, sh: 32
+		}, walk_last.properties)
+	    };
+
+	    var red_stand_time = _.last(red_walk_frames).time;
+	    var red_stance = _.clone(_.last(red_walk_frames).properties);
+	    red_stance.sx = 24 * 4;
+
+	    var red_walk = new Timeline.Interpolator(this.images.smallSprites,
+	    					       red_walk_frames);
+
+	    var red_stand = new Timeline.Still(this.images.smallSprites,
+						 red_stance,
+						 red_stand_time,
+						 null);
 
 	    var asgard_still =
 		new Timeline.Interpolator(this.images.asgard, [
@@ -595,7 +668,13 @@ window.cutscenes = (function() {
 		red_portrait,
 		wonders,
 		recursor_screen,
-		recursor
+		recursor,
+		white_walk,
+		green_walk,
+		red_walk,
+		white_stand,
+		green_stand,
+		red_stand
 	    ]);
 
 	    recursor.timeline = this.timeline;
