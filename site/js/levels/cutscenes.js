@@ -121,7 +121,7 @@ window.cutscenes = (function() {
             white_walk_frames[ white_walk_frames.length - 1 ] = {
                 time: walk_last.time,
                 properties: _.extend({
-                    dx: 352, dy: 350, dw: 24, dh: 32,
+                    dx: 360, dy: 350, dw: 24, dh: 32,
                     sy: 0, sw: 24, sh: 32
                 }, walk_last.properties)
             };
@@ -169,7 +169,7 @@ window.cutscenes = (function() {
             red_walk_frames[0] = {
                 time: walk_first.time,
                 properties: _.extend({
-                    dx: -160, dy: 350, dw: 24, dh: 32,
+                    dx: -168, dy: 350, dw: 24, dh: 32,
                     sy: 64, sw: 24, sh: 32
                 }, walk_first.properties)
             };
@@ -177,7 +177,7 @@ window.cutscenes = (function() {
             red_walk_frames[ red_walk_frames.length - 1 ] = {
                 time: walk_last.time,
                 properties: _.extend({
-                    dx: 200, dy: 350, dw: 24, dh: 32,
+                    dx: 192, dy: 350, dw: 24, dh: 32,
                     sy: 64, sw: 24, sh: 32
                 }, walk_last.properties)
             };
