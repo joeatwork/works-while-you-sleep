@@ -417,10 +417,20 @@ window.cutscenes = (function() {
                       dx: 256, dy: 192, dw: 64, dh: 128,
                       sx: 0, sy: 0, sw: 64, sh: 128
                   } },
+		{ time: 48000, properties: { sx: 0 }},
+		{ time: 48001, properties: { sx: 320 }},
+		{ time: 48100, properties: { sx: 320 }},
+		{ time: 48101, properties: { sx: 0 }},
+		{ time: 48200, properties: { sx: 0 }},
+		{ time: 48201, properties: { sx: 320 }},
+		{ time: 48300, properties: { sx: 320 }},
+		{ time: 48301, properties: { sx: 0 }},
+		{ time: 48500, properties: { sx: 0 }},
+		{ time: 48501, properties: { sx: 320 }},
                 { time: 50000,
                   properties: {
                       dx: 256, dy: 192, dw: 64, dh: 128,
-                      sx: 0, sy: 0, sw: 64, sh: 128
+                      sx: 320, sy: 0, sw: 64, sh: 128
                   } }
             ]);
 
@@ -442,10 +452,20 @@ window.cutscenes = (function() {
                       dx: 208, dy: 176, dw: 64, dh: 128,
                       sx: 0, sy: 128, sw: 64, sh: 128
                   } },
+		{ time: 48000, properties: { sx: 0 }},
+		{ time: 48001, properties: { sx: 320 }},
+		{ time: 48100, properties: { sx: 320 }},
+		{ time: 48101, properties: { sx: 0 }},
+		{ time: 48200, properties: { sx: 0 }},
+		{ time: 48201, properties: { sx: 320 }},
+		{ time: 48300, properties: { sx: 320 }},
+		{ time: 48301, properties: { sx: 0 }},
+		{ time: 48500, properties: { sx: 0 }},
+		{ time: 48501, properties: { sx: 320 }},
                 { time: 50000,
                   properties: {
                       dx: 208, dy: 176, dw: 64, dh: 128,
-                      sx: 0, sy: 128, sw: 64, sh: 128
+                      sx: 320, sy: 128, sw: 64, sh: 128
                   } }
             ]);
 
@@ -467,10 +487,20 @@ window.cutscenes = (function() {
                       dx: 304, dy: 176, dw: 64, dh: 128,
                       sx: 0, sy: 256, sw: 64, sh: 128
                   } },
+		{ time: 48000, properties: { sx: 0 }},
+		{ time: 48001, properties: { sx: 320 }},
+		{ time: 48100, properties: { sx: 320 }},
+		{ time: 48101, properties: { sx: 0 }},
+		{ time: 48200, properties: { sx: 0 }},
+		{ time: 48201, properties: { sx: 320 }},
+		{ time: 48300, properties: { sx: 320 }},
+		{ time: 48301, properties: { sx: 0 }},
+		{ time: 48500, properties: { sx: 0 }},
+		{ time: 48501, properties: { sx: 320 }},
                 { time: 50000,
                   properties: {
                       dx: 304, dy: 176, dw: 64, dh: 128,
-                      sx: 0, sy: 256, sw: 64, sh: 128
+                      sx: 320, sy: 256, sw: 64, sh: 128
                   } }
             ]);
 
