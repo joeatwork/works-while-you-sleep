@@ -46,6 +46,10 @@ window.cutscenes = (function() {
 	    context.scale(SCALE_FACTOR, SCALE_FACTOR);
 	    context.translate(SCREEN_X, SCREEN_Y);
 
+	    context.beginPath();
+	    context.rect(0, 0, 576, 388);
+	    context.clip();
+
 	    this.timeline.draw(realTime, context);
 	    context.restore();
 	}
