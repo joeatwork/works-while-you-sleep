@@ -569,18 +569,65 @@ window.cutscenes = (function() {
                       dx: 0, dy: 0, dw: 576, dh: 384,
                       sx: 0, sy: 0, sw: 576, sh: 384
                   } },
-                { time: 60000,
+                { time: 58000,
                   properties: {
                       dx: 0, dy: 0, dw: 576, dh: 384,
                       sx: 0, sy: 0, sw: 576, sh: 384
                   } },
-                { time: 65000,
+                { time: 61000,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 2064, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 63000,
                   properties: {
                       dx: 0, dy: 0, dw: 576, dh: 384,
                       sx: 2064, sy: 0, sw: 576, sh: 384
                   } },
 
                 // Wonders frames
+                { time: 63001,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 2640, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 63500,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 2640, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 63501,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 3216, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 64000,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 3216, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 64001,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 3792, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 64500,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 3792, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 64501,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 4368, sy: 0, sw: 576, sh: 384
+                  } },
+                { time: 65000,
+                  properties: {
+                      dx: 0, dy: 0, dw: 576, dh: 384,
+                      sx: 4368, sy: 0, sw: 576, sh: 384
+                  } },
+
+                // Wonders frames second loop
                 { time: 65001,
                   properties: {
                       dx: 0, dy: 0, dw: 576, dh: 384,
@@ -622,48 +669,8 @@ window.cutscenes = (function() {
                       sx: 4368, sy: 0, sw: 576, sh: 384
                   } },
 
-                // Wonders frames second loop
+		// AND WATCHING TV!!
                 { time: 67001,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 2640, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 67500,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 2640, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 67501,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 3216, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 68000,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 3216, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 68001,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 3792, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 68500,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 3792, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 68501,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 4368, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 69000,
-                  properties: {
-                      dx: 0, dy: 0, dw: 576, dh: 384,
-                      sx: 4368, sy: 0, sw: 576, sh: 384
-                  } },
-                { time: 69001,
                   properties: {
                       dx: 0, dy: 0, dw: 576, dh: 384,
                       sx: 4944, sy: 0, sw: 576, sh: 384
@@ -675,11 +682,16 @@ window.cutscenes = (function() {
                   } },
             ]);
 
+            var black_overlay_tv = new Blackout([
+                { time: 67000, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } },
+                { time: 67500, properties: { dx: 0, dy: 0, dw: 576, dh: 384 } }
+            ]);
+
             var recursor_screen =
                 new Timeline.Still(this.images.background,
                                    { dx: 0, dy: 0, dw: 576, dh: 384,
                                      sx: 0, sy: 0, sw: 864, sh: 576 },
-                                   70000, null);
+                                   69000, null);
 
             var recursor = new Recursor(null, 71000);
 
@@ -699,6 +711,7 @@ window.cutscenes = (function() {
                 green_portrait,
                 red_portrait,
                 wonders,
+		black_overlay_tv,
                 recursor_screen,
                 recursor,
                 white_walk,
@@ -716,6 +729,7 @@ window.cutscenes = (function() {
             var self = this;
             var time = Date.now() - this.t0;
             time = time + 71001;
+	    // time = time + 50000; // DEBUG
 
             this.renderGfx.save();
             this.renderGfx.scale(1.5, 1.5);
